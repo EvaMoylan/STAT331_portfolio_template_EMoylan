@@ -1,6 +1,6 @@
 ---
 title: "STAT 331 Portfolio"
-author: "Your Name Goes Here"
+author: "Eva Moylan"
 format: 
   html: 
     self-contained: true
@@ -11,7 +11,7 @@ execute:
   echo: true
 ---
 
-[**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an __.
+[**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an \_\_.
 
 [**Learning Objective Evidence:**]{.underline} In the code chunks below, provide code from Lab or Challenge assignments where you believe you have demonstrated proficiency with the specified learning target. Be sure to specify **where** the code came from (e.g., Lab 4 Question 2).
 
@@ -24,6 +24,10 @@ execute:
 ```{r}
 #| label: wd-1-csv
 
+#Lab 2- Question 1
+
+surveys <- read_csv(here::here("data",
+                               "surveys.csv")) #Load in data
 ```
 
 -   `xlsx`
@@ -31,6 +35,13 @@ execute:
 ```{r}
 #| label: wd-1-xlsx
 
+#Check-in 2.3
+
+AgesXLSX <- read_xlsx(here::here("Week 2", 
+                                 "Ages_Data", 
+                                 "ages.xlsx"), 
+                      sheet = "ages") 
+#Load ages excel file, looks like first sheet is blank so this specifies to load the sheet named "ages" stored within the same file
 ```
 
 -   `txt`
@@ -38,6 +49,13 @@ execute:
 ```{r}
 #| label: wd-1-txt
 
+#Check-in 2.3 
+
+AgesMystery <- read_delim(here::here("Week 2", 
+                                     "Ages_Data", 
+                                     "ages_mystery.txt"), 
+                          delim = "|") 
+#This is not already spaced so add delim = "|" to separate lists
 ```
 
 **WD-2: I can select necessary columns from a dataset.**
@@ -461,6 +479,17 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: dsm-2-1
 
+#Lab 1- Question 10
+
+#Conduct a two-sample t-test assuming unequal variances and a two-sided alternative.
+#Is tooth length different between supplement delivery methods?
+t.test(formula = len ~ supp, 
+       data = ToothGrowth, 
+       alternative = "two.sided", 
+       var.equal = FALSE)
+
+#Note: Specifiying the formula argument was added to the origional code.
+#(i.e., formula = len ~ supp, instead of len ~ supp)
 ```
 
 -   Example 2
