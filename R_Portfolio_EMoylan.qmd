@@ -40,8 +40,7 @@ surveys <- read_csv(here::here("data",
 AgesXLSX <- read_xlsx(here::here("Week 2", 
                                  "Ages_Data", 
                                  "ages.xlsx"), 
-                      sheet = "ages") 
-#Load ages excel file, looks like first sheet is blank so this specifies to load the sheet named "ages" stored within the same file
+                      sheet = "ages") #Looks like first sheet is blank so this specifies to load the sheet named "ages" stored within the same file
 ```
 
 -   `txt`
@@ -54,8 +53,7 @@ AgesXLSX <- read_xlsx(here::here("Week 2",
 AgesMystery <- read_delim(here::here("Week 2", 
                                      "Ages_Data", 
                                      "ages_mystery.txt"), 
-                          delim = "|") 
-#This is not already spaced so add delim = "|" to separate lists
+                          delim = "|") #This is not already spaced so add delim = "|" to separate lists
 ```
 
 **WD-2: I can select necessary columns from a dataset.**
@@ -74,7 +72,6 @@ teacher_evals_clean <- evals |>
   select(-(stud_grade_avg:stud_grade_var_coef_cur),
          -(class_duration:maximum_score)) #remove rows we don't need
 
-print(teacher_evals_clean)
 ```
 
 **WD-3: I can filter rows from a dataframe for a *variety* of data types (e.g., numeric, integer, character, factor, date).**
@@ -125,7 +122,6 @@ teacher_evals_clean <- evals |>
   select(-(stud_grade_avg:stud_grade_var_coef_cur),
          -(class_duration:maximum_score)) #remove rows we don't need
 
-print(teacher_evals_clean)
 ```
 
 -   character -- specifically a string (example must use functions from **stringr**)
@@ -299,6 +295,7 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: r-2-3
 
+#Will fulfill later in the quarter.
 ```
 
 **R-3: I can write robust programs that are resistant to changes in inputs.**
@@ -348,6 +345,43 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: dvs-2-date
 
+#Lab 4- Question 6
+
+ca_childcare |>
+  pivot_longer(cols = mc_infant:mc_preschool,
+               names_to = "child_age",
+               values_to = "w_median_price") |>
+  mutate(child_age = fct_recode(.f = child_age, #Change the names of each level
+                                "Infant" = "mc_infant",
+                                "Toddler" = "mc_toddler",
+                                "Preschool" = "mc_preschool"),
+         child_age = fct_relevel(.f = child_age, #Change order of the levels
+                                 "Infant",
+                                 "Toddler",
+                                 "Preschool")) |>
+  ggplot(mapping = aes(x = study_year,
+                       y = w_median_price,
+                       color = fct_reorder2(.f = region,
+                                            .x = study_year,
+                                            .y = w_median_price))) + #Order the regions by median price
+  geom_point(size = 0.5) +
+  geom_smooth(method = "loess", 
+              linewidth = 0.5) +
+  facet_wrap(~child_age) +
+  scale_x_continuous(n.breaks = 6) +
+  scale_y_continuous(limits = c(100, 
+                                500)) +
+  theme_bw() +
+  scale_color_manual(values = palette) + #use the palette made earlier
+  labs(x = "Study Year",
+       y = NULL,
+       title = "Weekly Median Price for Center-Based Childcare ($)",
+       color = "California Region") +
+  theme(aspect.ratio = 1,
+        axis.text = element_text(size = 6),
+        axis.title = element_text(size = 8),
+        title = element_text(size = 8),
+        legend.title = element_text(size = 9))
 ```
 
 **DVS-2: I use plot modifications to make my visualization clear to the reader.**
@@ -357,12 +391,45 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: dvs-2-1
 
+#Challenge 3- Hot
+
+#Box plot to compare weight within species
+ggplot(data = surveys,
+       mapping = aes(x = weight,
+                     y = species,
+                     color = genus)) +
+  geom_boxplot() + #Remove plotting all the points here; clutters the plot
+  scale_color_manual(values = cdPalette_grey) + 
+  annotate("text", y = 1:14, x = 325, label = c("Neotoma", #N. abigula
+                                                "Chaetodipus", #C. baileyi
+                                                "Peromyscus", #P. eremicus
+                                                "Perognathus", #P. flavus
+                                                "Reithrodontomys", #R. fulvencens
+                                                "Sigmodon", #S. hispidus
+                                                "Onychomys", #O. leucogaster
+                                                "Peromyscus", #P. maniculatus
+                                                "Reithrodontomys", #R. megalotis
+                                                "Dipodomys", #D. merriami
+                                                "Dipodomys", #D. ordii
+                                                "Chaetodipus", #C. penicillatus
+                                                "Dipodomys", #O. spectabilis
+                                                "Onychomys")) + #O. torridus
+  theme_bw() + 
+  scale_x_continuous(limits = c(0, 350)) + #Neotoma gets cut off so expand x-axis limit
+  labs(x = "Weight (g)",
+       y = NULL,
+       subtitle = "Annotations represent genera",
+       title = "Rodent Weight Across Species") +
+  theme(legend.position = "none")
+
+#Note: Original code was modified to use only one annotate function for every species name. The subtitle was also reworded. 
 ```
 
 -   I can modify the text in my plot to be more readable
 
 ```{r}
 #| label: dvs-2-2
+
 #Lab 4- Question 6
 
 ca_childcare |>
@@ -500,6 +567,38 @@ ca_childcare |>
 ```{r}
 #| label: dvs-3-2
 
+#Challenge 3- Hot
+
+#Box plot to compare weight within species
+ggplot(data = surveys,
+       mapping = aes(x = weight,
+                     y = species,
+                     color = genus)) +
+  geom_boxplot() + #Remove plotting all the points here; clutters the plot
+  scale_color_manual(values = cdPalette_grey) + 
+  annotate("text", y = 1:14, x = 325, label = c("Neotoma", #N. abigula
+                                                "Chaetodipus", #C. baileyi
+                                                "Peromyscus", #P. eremicus
+                                                "Perognathus", #P. flavus
+                                                "Reithrodontomys", #R. fulvencens
+                                                "Sigmodon", #S. hispidus
+                                                "Onychomys", #O. leucogaster
+                                                "Peromyscus", #P. maniculatus
+                                                "Reithrodontomys", #R. megalotis
+                                                "Dipodomys", #D. merriami
+                                                "Dipodomys", #D. ordii
+                                                "Chaetodipus", #C. penicillatus
+                                                "Dipodomys", #O. spectabilis
+                                                "Onychomys")) + #O. torridus
+  theme_bw() + 
+  scale_x_continuous(limits = c(0, 350)) + #Neotoma gets cut off so expand x-axis limit
+  labs(x = "Weight (g)",
+       y = NULL,
+       subtitle = "Annotations represent genera",
+       title = "Rodent Weight Across Species") +
+  theme(legend.position = "none")
+
+#Note: Original code was modified to use only one annotate function for every species name. The subtitle was also reworded. 
 ```
 
 -   I can be creative...
@@ -523,6 +622,18 @@ ca_childcare |>
 ```{r}
 #| label: dvs-4-across
 
+#Lab 3- Question 7
+
+teacher_evals_clean |>
+  group_by(teacher_id, course_id) |> 
+  summarize(
+    across(.col = question_no:sex, #summarize across these columns...
+           .fns = ~sum(is.na(.x))), #for these 'x' entries, keep if NA
+    .groups = "drop" #un-group
+    ) |> 
+  filter(
+    if_any(.col = question_no:sex,
+           .fns = ~.x != 0)) #if any entries in these columns are not equal to 0, keep that row
 ```
 
 **DVS-5: I can find summaries of variables across multiple groups.**
@@ -596,6 +707,7 @@ ca_childcare |>
 ```{r}
 #| label: pe-1-map-1
 
+#Will fulfill later in the quarter.
 ```
 
 **PE-2: I can write functions to reduce repetition in my code.**
@@ -628,6 +740,7 @@ ca_childcare |>
 ```{r}
 #| label: pe-3-map-1
 
+#Will fulfill later in the quarter.
 ```
 
 -   `map()` function with **more than one** input (e.g., `map_2()` or `pmap()`)
@@ -635,6 +748,7 @@ ca_childcare |>
 ```{r}
 #| label: pe-3-map-2
 
+#Will fulfill later in the quarter.
 ```
 
 **PE-4: I can use modern tools when carrying out my analysis.**
@@ -651,6 +765,43 @@ ca_childcare |>
 ```{r}
 #| label: pe-4-2
 
+#Lab 4- Question 6
+
+ca_childcare |>
+  pivot_longer(cols = mc_infant:mc_preschool,
+               names_to = "child_age",
+               values_to = "w_median_price") |>
+  mutate(child_age = fct_recode(.f = child_age, #Change the names of each level
+                                "Infant" = "mc_infant",
+                                "Toddler" = "mc_toddler",
+                                "Preschool" = "mc_preschool"),
+         child_age = fct_relevel(.f = child_age, #Change order of the levels
+                                 "Infant",
+                                 "Toddler",
+                                 "Preschool")) |>
+  ggplot(mapping = aes(x = study_year,
+                       y = w_median_price,
+                       color = fct_reorder2(.f = region,
+                                            .x = study_year,
+                                            .y = w_median_price))) + #Order the regions by median price
+  geom_point(size = 0.5) +
+  geom_smooth(method = "loess", 
+              linewidth = 0.5) +
+  facet_wrap(~child_age) +
+  scale_x_continuous(n.breaks = 6) +
+  scale_y_continuous(limits = c(100, 
+                                500)) +
+  theme_bw() +
+  scale_color_manual(values = palette) + #use the palette made earlier
+  labs(x = "Study Year",
+       y = NULL,
+       title = "Weekly Median Price for Center-Based Childcare ($)",
+       color = "California Region") +
+  theme(aspect.ratio = 1,
+        axis.text = element_text(size = 6),
+        axis.title = element_text(size = 8),
+        title = element_text(size = 8),
+        legend.title = element_text(size = 9))
 ```
 
 ## Data Simulation & Statisical Models
@@ -662,6 +813,7 @@ ca_childcare |>
 ```{r}
 #| label: dsm-1-1
 
+#Will fulfill later in the quarter.
 ```
 
 -   Example 2
@@ -669,6 +821,7 @@ ca_childcare |>
 ```{r}
 #| label: dsm-1-2
 
+#Will fulfill later in the quarter.
 ```
 
 **DSSM-2: I can conduct common statistical analyses in R.**
