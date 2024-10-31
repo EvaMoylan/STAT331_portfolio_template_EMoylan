@@ -103,6 +103,16 @@ teacher_evals_clean <- evals |>
 ```{r}
 #| label: wd-3-date
 
+#Lab 5- Crime Scene Report
+
+crime_scene_report |>
+  mutate(date = ymd(date)) |> #numeric date becomes year-month-day date format
+  filter(type == "murder",
+         date == "2018-01-15",
+         city == "SQL City") |>
+  pull(description)
+
+#Note: Original code was modified to include mutating to date format versus filtering the date in numeric format.
 ```
 
 **WD-4: I can modify existing variables and create new variables in a dataframe for a *variety* of data types (e.g., numeric, integer, character, factor, date).**
@@ -877,6 +887,18 @@ teacher_evals_clean |>
 ```{r}
 #| label: pe-4-1
 
+#Lab 3- Question 7
+
+teacher_evals_clean |>
+  group_by(teacher_id, course_id) |> 
+  summarize(
+    across(.col = question_no:sex, #summarize across these columns...
+           .fns = ~sum(is.na(.x))), #for these 'x' entries, keep if NA
+    .groups = "drop" #un-group
+    ) |> 
+  filter(
+    if_any(.col = question_no:sex,
+           .fns = ~.x != 0)) #if any entries in these columns are not equal to 0, keep that row
 ```
 
 -   I can connect a data wrangling pipeline into a `ggplot()`
@@ -884,7 +906,7 @@ teacher_evals_clean |>
 ```{r}
 #| label: pe-4-2
 
-#Lab 4- Question 6
+#Lab 4 - Question 6
 
 ca_childcare |>
   pivot_longer(cols = mc_infant:mc_preschool,
