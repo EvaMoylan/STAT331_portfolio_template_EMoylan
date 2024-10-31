@@ -226,6 +226,43 @@ interview |>
 ```{r}
 #| label: wd-7-long
 
+#Lab 4- Question 6
+
+ca_childcare |>
+  pivot_longer(cols = mc_infant:mc_preschool,
+               names_to = "child_age",
+               values_to = "w_median_price") |>
+  mutate(child_age = fct_recode(.f = child_age, #Change the names of each level
+                                "Infant" = "mc_infant",
+                                "Toddler" = "mc_toddler",
+                                "Preschool" = "mc_preschool"),
+         child_age = fct_relevel(.f = child_age, #Change order of the levels
+                                 "Infant",
+                                 "Toddler",
+                                 "Preschool")) |>
+  ggplot(mapping = aes(x = study_year,
+                       y = w_median_price,
+                       color = fct_reorder2(.f = region,
+                                            .x = study_year,
+                                            .y = w_median_price))) + #Order the regions by median price
+  geom_point(size = 0.5) +
+  geom_smooth(method = "loess", 
+              linewidth = 0.5) +
+  facet_wrap(~child_age) +
+  scale_x_continuous(n.breaks = 6) +
+  scale_y_continuous(limits = c(100, 
+                                500)) +
+  theme_bw() +
+  scale_color_manual(values = palette) + #use the palette made earlier
+  labs(x = "Study Year",
+       y = NULL,
+       title = "Weekly Median Price for Center-Based Childcare ($)",
+       color = "California Region") +
+  theme(aspect.ratio = 1,
+        axis.text = element_text(size = 6),
+        axis.title = element_text(size = 8),
+        title = element_text(size = 8),
+        legend.title = element_text(size = 9))
 ```
 
 -   `pivot_wider()`
@@ -278,6 +315,7 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: r-3-function-stops
 
+#Will fulfill later in the quarter.
 ```
 
 ## Data Visualization & Summarization
@@ -325,7 +363,43 @@ I've done this in the following provided assignments:
 
 ```{r}
 #| label: dvs-2-2
+#Lab 4- Question 6
 
+ca_childcare |>
+  pivot_longer(cols = mc_infant:mc_preschool,
+               names_to = "child_age",
+               values_to = "w_median_price") |>
+  mutate(child_age = fct_recode(.f = child_age, #Change the names of each level
+                                "Infant" = "mc_infant",
+                                "Toddler" = "mc_toddler",
+                                "Preschool" = "mc_preschool"),
+         child_age = fct_relevel(.f = child_age, #Change order of the levels
+                                 "Infant",
+                                 "Toddler",
+                                 "Preschool")) |>
+  ggplot(mapping = aes(x = study_year,
+                       y = w_median_price,
+                       color = fct_reorder2(.f = region,
+                                            .x = study_year,
+                                            .y = w_median_price))) + #Order the regions by median price
+  geom_point(size = 0.5) +
+  geom_smooth(method = "loess", 
+              linewidth = 0.5) +
+  facet_wrap(~child_age) +
+  scale_x_continuous(n.breaks = 6) +
+  scale_y_continuous(limits = c(100, 
+                                500)) +
+  theme_bw() +
+  scale_color_manual(values = palette) + #use the palette made earlier
+  labs(x = "Study Year",
+       y = NULL,
+       title = "Weekly Median Price for Center-Based Childcare ($)",
+       color = "California Region") +
+  theme(aspect.ratio = 1,
+        axis.text = element_text(size = 6),
+        axis.title = element_text(size = 8),
+        title = element_text(size = 8),
+        legend.title = element_text(size = 9))
 ```
 
 -   I can reorder my legend to align with the colors in my plot
@@ -333,6 +407,43 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: dvs-2-3
 
+#Lab 4- Question 6
+
+ca_childcare |>
+  pivot_longer(cols = mc_infant:mc_preschool,
+               names_to = "child_age",
+               values_to = "w_median_price") |>
+  mutate(child_age = fct_recode(.f = child_age, #Change the names of each level
+                                "Infant" = "mc_infant",
+                                "Toddler" = "mc_toddler",
+                                "Preschool" = "mc_preschool"),
+         child_age = fct_relevel(.f = child_age, #Change order of the levels
+                                 "Infant",
+                                 "Toddler",
+                                 "Preschool")) |>
+  ggplot(mapping = aes(x = study_year,
+                       y = w_median_price,
+                       color = fct_reorder2(.f = region,
+                                            .x = study_year,
+                                            .y = w_median_price))) + #Order the regions by median price
+  geom_point(size = 0.5) +
+  geom_smooth(method = "loess", 
+              linewidth = 0.5) +
+  facet_wrap(~child_age) +
+  scale_x_continuous(n.breaks = 6) +
+  scale_y_continuous(limits = c(100, 
+                                500)) +
+  theme_bw() +
+  scale_color_manual(values = palette) + #use the palette made earlier
+  labs(x = "Study Year",
+       y = NULL,
+       title = "Weekly Median Price for Center-Based Childcare ($)",
+       color = "California Region") +
+  theme(aspect.ratio = 1,
+        axis.text = element_text(size = 6),
+        axis.title = element_text(size = 8),
+        title = element_text(size = 8),
+        legend.title = element_text(size = 9))
 ```
 
 **DVS-3: I show creativity in my visualizations**
@@ -342,6 +453,46 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: dvs-3-1
 
+
+#Lab 4- Question 6
+
+palette <- colorRampPalette(brewer.pal(8,"Accent"))(10) #Brewer palette only has 8 colors, so make a palette with 10
+
+ca_childcare |>
+  pivot_longer(cols = mc_infant:mc_preschool,
+               names_to = "child_age",
+               values_to = "w_median_price") |>
+  mutate(child_age = fct_recode(.f = child_age, #Change the names of each level
+                                "Infant" = "mc_infant",
+                                "Toddler" = "mc_toddler",
+                                "Preschool" = "mc_preschool"),
+         child_age = fct_relevel(.f = child_age, #Change order of the levels
+                                 "Infant",
+                                 "Toddler",
+                                 "Preschool")) |>
+  ggplot(mapping = aes(x = study_year,
+                       y = w_median_price,
+                       color = fct_reorder2(.f = region,
+                                            .x = study_year,
+                                            .y = w_median_price))) + #Order the regions by median price
+  geom_point(size = 0.5) +
+  geom_smooth(method = "loess", 
+              linewidth = 0.5) +
+  facet_wrap(~child_age) +
+  scale_x_continuous(n.breaks = 6) +
+  scale_y_continuous(limits = c(100, 
+                                500)) +
+  theme_bw() +
+  scale_color_manual(values = palette) + #use the palette made earlier
+  labs(x = "Study Year",
+       y = NULL,
+       title = "Weekly Median Price for Center-Based Childcare ($)",
+       color = "California Region") +
+  theme(aspect.ratio = 1,
+        axis.text = element_text(size = 6),
+        axis.title = element_text(size = 8),
+        title = element_text(size = 8),
+        legend.title = element_text(size = 9))
 ```
 
 -   I can use annotations
