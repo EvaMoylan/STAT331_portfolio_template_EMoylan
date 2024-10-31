@@ -112,7 +112,7 @@ teacher_evals_clean <- evals |>
 ```{r}
 #| label: wd-4-numeric
 
-#Lab3 - Question 5
+#Lab 3 - Question 5
 teacher_evals_clean <- evals |>
   rename(sex = gender) |> #rename gender column to 'sex'
   filter(no_participants >= 10) |> # remove all courses with fewer than 10 respondents
@@ -129,12 +129,91 @@ teacher_evals_clean <- evals |>
 ```{r}
 #| label: wd-4-string
 
+#Lab 5 - Witness Interviews
+
+interview |>
+  inner_join(person, #keeps only rows in 'person' that are also in 'interview'
+             by = join_by(person_id == id)) |> #join using key: person_id (interviews) and id (person)
+  mutate(is_Annabel = str_detect(string = name,
+                                 pattern = "Annabel"),
+         .after = name) |> #new column after the name column with T/F if the person's first name is Annabel
+  filter(address_street_name %in% c("Northwestern Dr",
+                                    "Franklin Ave"),
+         address_number == max(address_number) | #either highest address number *or* name is Annabel
+         is_Annabel == TRUE) |>
+  pull(transcript) #1 = Morty Schapiro, #2 = Annabel Miller
 ```
 
 -   factor (example must use functions from **forcats**)
 
 ```{r}
 #| label: wd-4-factor
+
+#Lab 4 - Question 3
+
+a_childcare <- ca_childcare |> #I want the object to be updated with regions
+  mutate(county_name = str_remove(string = county_name, 
+                                  pattern = "County"),
+         region = fct_collapse(.f = county_name,
+                               "Superior California" = c("Butte ",
+                                                         "Modoc ",
+                                                         "Colusa ", 
+                                                         "El Dorado ", 
+                                                         "Glenn ", 
+                                                         "Lassen ", 
+                                                         "Nevada ", 
+                                                         "Placer ", 
+                                                         "Plumas ", 
+                                                         "Sacramento ", 
+                                                         "Shasta ", 
+                                                         "Sierra ", 
+                                                         "Siskiyou ",
+                                                         "Sutter ",
+                                                         "Tehama ",
+                                                         "Yolo ",
+                                                         "Yuba "),
+                               "North Coast" = c("Del Norte ",
+                                                 "Humboldt ",
+                                                 "Lake ",
+                                                 "Mendocino ",
+                                                 "Napa ",
+                                                 "Sonoma ",
+                                                 "Trinity "),
+                               "San Francisco Bay Area" = c("Alameda ",
+                                                            "Contra Costa ",
+                                                            "Marin ",
+                                                            "San Francisco ",
+                                                            "San Mateo ",
+                                                            "Santa Clara ",
+                                                            "Solano "),
+                               "Northern San Joaquin Valley" = c("Alpine ",
+                                                                 "Amador ",
+                                                                 "Calaveras ",
+                                                                 "Madera ",
+                                                                 "Mariposa ",
+                                                                 "Merced ",
+                                                                 "Mono ",
+                                                                 "San Joaquin ",
+                                                                 "Stanislaus ",
+                                                                 "Tuolumne "),
+                               "Central Coast" = c("Monterey ", 
+                                                   "San Benito ", 
+                                                   "San Luis Obispo ", 
+                                                   "Santa Barbara ", 
+                                                   "Santa Cruz ", 
+                                                   "Ventura "),
+                               "Southern San Joaquin Valley" = c("Fresno ",
+                                                                 "Inyo ",
+                                                                 "Kern ",
+                                                                 "Kings ",
+                                                                 "Tulare "),
+                               "Inland Empire" = c("Riverside ",
+                                                   "San Bernardino "),
+                               "Los Angeles County" = c("Los Angeles "),
+                               "Orange County" = c("Orange "),
+                               "San Diego Area - Imperial" = c("San Diego ",
+                                                               "Imperial ")
+                               ))
 
 ```
 
@@ -176,20 +255,26 @@ crime_scene_report |>
 ```{r}
 #| label: wd-5-inner
 
-#Lab 5- Witness Interviews
+#Lab 5- Applying Witness Accounts
 
-#Join interviews data and person data, to find witnesses based on their address
-interview |>
-  inner_join(person, #keeps only rows in 'person' that are also in 'interview'
-             by = join_by(person_id == id)) |> #join using key: person_id (interviews) and id (person)
-  mutate(is_Annabel = str_detect(string = name,
-                                 pattern = "Annabel"),
-         .after = name) |> #new column after the name column with T/F if the person's first name is Annabel
-  filter(address_street_name %in% c("Northwestern Dr",
-                                    "Franklin Ave"),
-         address_number == max(address_number) | #either highest address number *or* name is Annabel
-         is_Annabel == TRUE) |>
-  pull(transcript) #1 = Morty Schapiro, #2 = Annabel Miller
+get_fit_now_check_in |>
+  inner_join(get_fit_now_member,
+             by = join_by(membership_id == id)) |>
+  inner_join(person,
+             by = join_by(person_id == id,
+                          name == name)) |> #two keys, name and id's
+  inner_join(drivers_license,
+             by = join_by(license_id == id)) |>
+  mutate(plate_number = str_detect(string = plate_number,
+                                    pattern = "H42W"),
+         membership_id = str_detect(string = membership_id,
+                                    pattern = "48Z")) |>
+  filter(gender == "male",
+         membership_status == "gold",
+         check_in_date == "20180109",
+         membership_id == TRUE,
+         plate_number == TRUE) |>
+  pull(name)
 ```
 
 -   `full_join()`
@@ -266,6 +351,21 @@ ca_childcare |>
 ```{r}
 #| label: wd-7-wide
 
+#Lab 4 - Question 4
+
+ca_childcare |>
+  group_by(region, study_year) |>
+  summarize(mhi_2018 = median(mhi_2018),
+            .groups = "drop") |> #values now are median for each year at each county 
+  filter(study_year %in% c(2008, 
+                         2018)) |>
+  pivot_wider(id_cols = "region", #region stays from original table orientation 
+              names_from = study_year, #I want 2008 and 2018 to become columns
+              values_from = mhi_2018, #I want the corresponding values to be this
+              names_prefix = "Med_household_income_") |>  
+  rename("Region" = "region") |>
+  select(c(`Region`, starts_with("Med_household_income_"))) |> 
+  arrange(desc(`Med_household_income_2018`))
 ```
 
 ## Reproducibility
@@ -426,53 +526,10 @@ ggplot(data = surveys,
 ```
 
 -   I can modify the text in my plot to be more readable
-
-```{r}
-#| label: dvs-2-2
-
-#Lab 4- Question 6
-
-ca_childcare |>
-  pivot_longer(cols = mc_infant:mc_preschool,
-               names_to = "child_age",
-               values_to = "w_median_price") |>
-  mutate(child_age = fct_recode(.f = child_age, #Change the names of each level
-                                "Infant" = "mc_infant",
-                                "Toddler" = "mc_toddler",
-                                "Preschool" = "mc_preschool"),
-         child_age = fct_relevel(.f = child_age, #Change order of the levels
-                                 "Infant",
-                                 "Toddler",
-                                 "Preschool")) |>
-  ggplot(mapping = aes(x = study_year,
-                       y = w_median_price,
-                       color = fct_reorder2(.f = region,
-                                            .x = study_year,
-                                            .y = w_median_price))) + #Order the regions by median price
-  geom_point(size = 0.5) +
-  geom_smooth(method = "loess", 
-              linewidth = 0.5) +
-  facet_wrap(~child_age) +
-  scale_x_continuous(n.breaks = 6) +
-  scale_y_continuous(limits = c(100, 
-                                500)) +
-  theme_bw() +
-  scale_color_manual(values = palette) + #use the palette made earlier
-  labs(x = "Study Year",
-       y = NULL,
-       title = "Weekly Median Price for Center-Based Childcare ($)",
-       color = "California Region") +
-  theme(aspect.ratio = 1,
-        axis.text = element_text(size = 6),
-        axis.title = element_text(size = 8),
-        title = element_text(size = 8),
-        legend.title = element_text(size = 9))
-```
-
 -   I can reorder my legend to align with the colors in my plot
 
 ```{r}
-#| label: dvs-2-3
+#| label: dvs-2-2 & dvs-2-3
 
 #Lab 4- Question 6
 
@@ -567,6 +624,27 @@ ca_childcare |>
 ```{r}
 #| label: dvs-3-2
 
+#Lab 5 - Witness Interviews
+
+#Join interviews data and person data, to find witnesses based on their address
+interview |>
+  inner_join(person, #keeps only rows in 'person' that are also in 'interview'
+             by = join_by(person_id == id)) |> #join using key: person_id (interviews) and id (person)
+  mutate(is_Annabel = str_detect(string = name,
+                                 pattern = "Annabel"),
+         .after = name) |> #new column after the name column with T/F if the person's first name is Annabel
+  filter(address_street_name %in% c("Northwestern Dr",
+                                    "Franklin Ave"),
+         address_number == max(address_number) | #either highest address number *or* name is Annabel
+         is_Annabel == TRUE) |>
+  pull(transcript) #1 = Morty Schapiro, #2 = Annabel Miller
+```
+
+-   I can be creative...
+
+```{r}
+#| label: dvs-3-3
+
 #Challenge 3- Hot
 
 #Box plot to compare weight within species
@@ -599,13 +677,6 @@ ggplot(data = surveys,
   theme(legend.position = "none")
 
 #Note: Original code was modified to use only one annotate function for every species name. The subtitle was also reworded. 
-```
-
--   I can be creative...
-
-```{r}
-#| label: dvs-3-3
-
 ```
 
 **DVS-4: I can calculate numerical summaries of variables.**
@@ -700,6 +771,18 @@ teacher_evals_clean |>
 ```{r}
 #| label: pe-1-across
 
+#Lab 3- Question 7
+
+teacher_evals_clean |>
+  group_by(teacher_id, course_id) |> 
+  summarize(
+    across(.col = question_no:sex, #summarize across these columns...
+           .fns = ~sum(is.na(.x))), #for these 'x' entries, keep if NA
+    .groups = "drop" #un-group
+    ) |> 
+  filter(
+    if_any(.col = question_no:sex,
+           .fns = ~.x != 0)) #if any entries in these columns are not equal to 0, keep that row
 ```
 
 -   `map()` functions
@@ -717,6 +800,7 @@ teacher_evals_clean |>
 ```{r}
 #| label: pe-2-1
 
+#Will fulfill later in the quarter.
 ```
 
 -   Function that operates on data frames
@@ -724,6 +808,7 @@ teacher_evals_clean |>
 ```{r}
 #| label: pe-2-2
 
+#Will fulfill later in the quarter.
 ```
 
 **PE-3:I can use iteration to reduce repetition in my code.**
@@ -733,6 +818,7 @@ teacher_evals_clean |>
 ```{r}
 #| label: pe-3-across
 
+#Will fulfill later in the quarter.
 ```
 
 -   `map()` function with **one** input (e.g., `map()`, `map_chr()`, `map_dbl()`, etc.)
