@@ -9,7 +9,6 @@ editor: visual
 execute: 
   eval: false
   echo: true
-code-fold: true
 ---
 
 [**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an A-.
@@ -578,6 +577,8 @@ ggplot(data = surveys,
 ```{r}
 #| label: dvs-2-num-cat
 
+#Challenge 3- Hot
+
 #Box plot to compare weight within species
 ggplot(data = surveys,
        mapping = aes(x = weight,
@@ -773,7 +774,6 @@ ca_childcare |>
 
 ```{r}
 #| label: dvs-3-1
-
 
 #Lab 4- Question 6
 
@@ -1280,12 +1280,22 @@ chisq.test(teacher_evals_compare$SET_level, teacher_evals_compare$sen_level) #ou
 
 <!-- For the revisions included in your Portfolio, to help me understand the nature of your revisions, please denote somehow the feedback I provided you (e.g., boldface, italics, colored text) before your revisions. -->
 
+When I was provided growing feedback on assignments, I submitted revisions for all but some of the questions. Additionally, if I recieved feedback on questions that I received a success on, I tried my best to also apply those revisions to my code and related code in future assignments. When revising my code, I wrote thoughtful reflections on why the changes were necessary and how I will use this information for future programming. A revision that I am proud of was from Lab 2, which applied to questions 2 and 3:
+
+*"Originally, I used the print( ) function to show a tibble of the data to get the information on rows, columns and data types. Reconsidering this decision, it is more efficient to use glimpse( ). While print( ) gives the size of the tibble, you need to scroll to look at every column individually to see the different data types and the result gives a message not an output. But, glimpse( ) gives the same information in the form of an output. In the future, when I need this information I will use the glimpse( ) function instead!"*
+
 ## Extending My Thinking
 
 <!-- How did you extended your thinking throughout the course? How did you extend your thinking on the code examples you have provided in your portfolio? -->
+
+I feel confident in my effort to extend my thinking so far in this course. I made an effort to challenge myself on challenge assignments when possible. For example, for Challenge 3, I completed the 'hot' assignment to push what I was comfortable with when using ggplot2. The annotate( ) function was new to me and I chose this assignment to learn new ggplot2 skills. For labs and challenge assignments where we were required to re-create plots, I also tried to match the appearance of the plot (i.e. style, colors) as close as possible to the example instead of only matching the visualization of the data. Where I think I have room for improvement is thinking more broadly about new functions I can use to complete a task more efficiently, even if I can do it correctly using a different method. For example, using filtering joins instead of the filter( ) argument when applicable. So, this is where I feel I haven't earned a full A at this point in the quarter.
 
 ## Peer Support & Collaboration
 
 <!-- Include an image or a description of feedback you gave that you are proud of (either in a peer review or in Discord). -->
 
+![](images/Screenshot 2024-11-03 at 9.36.52 PM.png){width="470"}
+
 <!-- Include a description of how you grew as a collaborator through the weekly pair programming activities.   -->
+
+During weekly pair programming activities, I have grown in my ability to communicate writing code with others. The exercise of having one group member verbally coding and another developing that code has also helped my ability to understand and write code from hearing someone else describe it. I have enjoyed seeing the different ways we both might approach the same problem and this also improved my ability to work through different methods to get the correct output from our code.
