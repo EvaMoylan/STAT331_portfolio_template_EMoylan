@@ -9,9 +9,10 @@ editor: visual
 execute: 
   eval: false
   echo: true
+code-fold: true
 ---
 
-[**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an \_\_.
+[**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an A-.
 
 [**Learning Objective Evidence:**]{.underline} In the code chunks below, provide code from Lab or Challenge assignments where you believe you have demonstrated proficiency with the specified learning target. Be sure to specify **where** the code came from (e.g., Lab 4 Question 2).
 
@@ -66,8 +67,8 @@ AgesMystery <- read_delim(here::here("Week 2",
 teacher_evals_clean <- evals |>
   rename(sex = gender) |> #rename gender column to 'sex'
   filter(no_participants >= 10) |> # remove all courses with fewer than 10 respondents
-  mutate(teacher_id = as.factor(teacher_id), #change to a character
-         seniority = as.factor(seniority), #change to a character
+  mutate(teacher_id = as.factor(teacher_id), #change to a factor
+         seniority = as.factor(seniority), #change to a factor
          question_no = question_no-900) |> #change question number to 1-10
   select(-(stud_grade_avg:stud_grade_var_coef_cur),
          -(class_duration:maximum_score)) #remove rows we don't need
@@ -81,7 +82,19 @@ teacher_evals_clean <- evals |>
 ```{r}
 #| label: wd-3-numeric
 
+#Lab 3- Question 10
 
+#Teachers with the highest average rating for Q1
+teacher_evals_clean |>
+  filter(question_no == 1) |> 
+  group_by(teacher_id, SET_score_avg) |>
+  summarise(SET_score_avg = mean(SET_score_avg),
+            .groups = "drop") |> #Average Q1 score for each teacher
+  filter(SET_score_avg == max(SET_score_avg) |
+         SET_score_avg == min(SET_score_avg)
+         )
+
+#Note: Original code was modified to filter using max and min arguments in one pipeline instead of slice_min and slice_max in seperate pipelines.
 ```
 
 -   character -- specifically a string (example must use functions from **stringr**)
@@ -89,6 +102,26 @@ teacher_evals_clean <- evals |>
 ```{r}
 #| label: wd-3-string
 
+#Lab 5- Applying Witness Accounts
+
+get_fit_now_check_in |>
+  inner_join(get_fit_now_member,
+             by = join_by(membership_id == id)) |>
+  inner_join(person,
+             by = join_by(person_id == id,
+                          name == name)) |> #two keys, name and id's
+  inner_join(drivers_license,
+             by = join_by(license_id == id)) |>
+  mutate(plate_number = str_detect(string = plate_number,
+                                    pattern = "H42W"),
+         membership_id = str_detect(string = membership_id,
+                                    pattern = "48Z")) |>
+  filter(gender == "male",
+         membership_status == "gold",
+         check_in_date == "20180109",
+         membership_id == TRUE,
+         plate_number == TRUE) |>
+  pull(name)
 ```
 
 -   factor
@@ -96,6 +129,14 @@ teacher_evals_clean <- evals |>
 ```{r}
 #| label: wd-3-factor
 
+#Lab 3- Question 11
+
+#Teacher with the highest average percent failure
+teacher_evals_clean |>
+  filter(seniority == 1) |> #Keep only instructors with 1 year of experience, seniority = factor
+  group_by(teacher_id) |>
+  summarise(percent_failed_cur = mean(percent_failed_cur)) |>
+  slice_max(percent_failed_cur)
 ```
 
 -   date (example must use functions from **lubridate**)
@@ -126,8 +167,8 @@ crime_scene_report |>
 teacher_evals_clean <- evals |>
   rename(sex = gender) |> #rename gender column to 'sex'
   filter(no_participants >= 10) |> # remove all courses with fewer than 10 respondents
-  mutate(teacher_id = as.factor(teacher_id), #change to a character
-         seniority = as.factor(seniority), #change to a character
+  mutate(teacher_id = as.factor(teacher_id), #change to a factor
+         seniority = as.factor(seniority), #change to a factor
          question_no = question_no-900) |> #change question number to 1-10
   select(-(stud_grade_avg:stud_grade_var_coef_cur),
          -(class_duration:maximum_score)) #remove rows we don't need
@@ -251,6 +292,7 @@ crime_scene_report |>
 ```{r}
 #| label: wd-5-left
 
+#Will fulfill later in the quarter.
 ```
 
 -   `right_join()`
@@ -258,6 +300,7 @@ crime_scene_report |>
 ```{r}
 #| label: wd-5-right
 
+#Will fulfill later in the quarter.
 ```
 
 -   `inner_join()`
@@ -292,6 +335,7 @@ get_fit_now_check_in |>
 ```{r}
 #| label: wd-5-full
 
+#Will fulfill later in the quarter.
 ```
 
 **WD-6: I can use filtering joins to filter rows from a dataframe.**
@@ -301,6 +345,7 @@ get_fit_now_check_in |>
 ```{r}
 #| label: wd-6-semi
 
+#Will fulfill later in the quarter.
 ```
 
 -   `anti_join()`
@@ -308,6 +353,7 @@ get_fit_now_check_in |>
 ```{r}
 #| label: wd-6-anti
 
+#Will fulfill later in the quarter.
 ```
 
 **WD-7: I can pivot dataframes from long to wide and visa versa**
@@ -384,6 +430,16 @@ ca_childcare |>
 
 I've done this in the following provided assignments:
 
+-   Lab 1
+
+-   Lab 2 & Challenge 2
+
+-   Lab 3 & Challenge 3
+
+-   Lab 4
+
+-   Lab 5
+
 **R-2: I can write well documented and tidy code.**
 
 -   Example of **ggplot2** plotting
@@ -391,6 +447,41 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: r-2-1
 
+#Challenge 3- Hot
+
+#Box plot to compare weight within species
+ggplot(data = surveys,
+       mapping = aes(x = weight,
+                     y = species,
+                     color = genus)) +
+  geom_boxplot() + 
+  scale_color_manual(values = cdPalette_grey) + #use previously made custom pallet
+  annotate("text", 
+           y = 1:14, 
+           x = 325, 
+           label = c("Neotoma", #N. abigula
+                     "Chaetodipus", #C. baileyi
+                     "Peromyscus", #P. eremicus
+                     "Perognathus", #P. flavus
+                     "Reithrodontomys", #R. fulvencens
+                     "Sigmodon", #S. hispidus
+                     "Onychomys", #O. leucogaster
+                     "Peromyscus", #P. maniculatus
+                     "Reithrodontomys", #R. megalotis
+                     "Dipodomys", #D. merriami
+                     "Dipodomys", #D. ordii
+                     "Chaetodipus", #C. penicillatus
+                     "Dipodomys", #O. spectabilis
+                     "Onychomys")) + #O. torridus
+  theme_bw() + 
+  scale_x_continuous(limits = c(0, 350)) + #Neotoma gets cut off so expand x-axis limit
+  labs(x = "Weight (g)",
+       y = NULL,
+       subtitle = "Annotations represent genera",
+       title = "Rodent Weight Across Species") +
+  theme(legend.position = "none")
+
+#Note: Original code was modified to use only one annotate function for every species name. The subtitle was also reworded. 
 ```
 
 -   Example of **dplyr** pipeline
@@ -398,6 +489,21 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: r-2-2
 
+#Lab 4 - Question 4
+
+ca_childcare |>
+  group_by(region, study_year) |>
+  summarize(mhi_2018 = median(mhi_2018),
+            .groups = "drop") |> #values now are median for each year at each county 
+  filter(study_year %in% c(2008, 
+                         2018)) |>
+  pivot_wider(id_cols = "region", #region stays from original table orientation 
+              names_from = study_year, #I want 2008 and 2018 to become columns
+              values_from = mhi_2018, #I want the corresponding values to be this
+              names_prefix = "Med_household_income_") |>  
+  rename("Region" = "region") |>
+  select(c(`Region`, starts_with("Med_household_income_"))) |> 
+  arrange(desc(`Med_household_income_2018`))
 ```
 
 -   Example of function formatting
@@ -415,6 +521,24 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: r-3-example
 
+#Lab 4 - Question 5
+
+ca_childcare |>
+  filter(study_year == 2018) |> #filter first to work with less data
+  group_by(region, study_year) |>
+  summarize(mhi_2018 = median(mhi_2018), #values now are median for each year at each county
+            mc_infant = median(mc_infant),
+            .groups = 'drop') |>
+  pivot_wider(id_cols = "region", #region stays from original table orientation 
+              names_from = study_year,
+              values_from = c(mhi_2018,
+                              mc_infant)) |>
+  rename("Median_household_income_2018" = "mhi_2018_2018",
+         "Median_infant_childcare$_2018" = "mc_infant_2018",
+         "Region" = "region") |> 
+  slice_min(`Median_infant_childcare$_2018`) #Superior CA has the lowest med childcare for infants in 2018
+
+#Note: Changes to the origional code- moving the filter function to the beginning of the pipeline and renaming the columns.
 ```
 
 -   Example of function stops
@@ -434,6 +558,19 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: dvs-1-num
 
+#Lab 2- Question 4
+
+#Scatter plots to compare weight and hindfoot length across species
+ggplot(data = surveys,
+       mapping = aes(x = weight,
+                     y = hindfoot_length)) +
+  geom_point(alpha = 0.3) + #Q5: Change transparency to see more points
+  facet_wrap(~species) + #Q6: Facet by species
+  theme_bw() + #Use this instead of classic to keep grid lines
+  labs(x = "Weight (g)",
+       y = NULL,
+       subtitle = "Hindfoot Length (mm)", #Q8: Move y-axis title to top
+       title = "Relationship Between Rodent Weight and Hindfoot Length Across Species")
 ```
 
 -   at least one numeric variable and one categorical variable
@@ -441,6 +578,39 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: dvs-2-num-cat
 
+#Box plot to compare weight within species
+ggplot(data = surveys,
+       mapping = aes(x = weight,
+                     y = species,
+                     color = genus)) +
+  geom_boxplot() + 
+  scale_color_manual(values = cdPalette_grey) + #use previously made custom pallet
+  annotate("text", 
+           y = 1:14, 
+           x = 325, 
+           label = c("Neotoma", #N. abigula
+                     "Chaetodipus", #C. baileyi
+                     "Peromyscus", #P. eremicus
+                     "Perognathus", #P. flavus
+                     "Reithrodontomys", #R. fulvencens
+                     "Sigmodon", #S. hispidus
+                     "Onychomys", #O. leucogaster
+                     "Peromyscus", #P. maniculatus
+                     "Reithrodontomys", #R. megalotis
+                     "Dipodomys", #D. merriami
+                     "Dipodomys", #D. ordii
+                     "Chaetodipus", #C. penicillatus
+                     "Dipodomys", #O. spectabilis
+                     "Onychomys")) + #O. torridus
+  theme_bw() + 
+  scale_x_continuous(limits = c(0, 350)) + #Neotoma gets cut off so expand x-axis limit
+  labs(x = "Weight (g)",
+       y = NULL,
+       subtitle = "Annotations represent genera",
+       title = "Rodent Weight Across Species") +
+  theme(legend.position = "none")
+
+#Note: Original code was modified to use only one annotate function for every species name. The subtitle was also reworded. 
 ```
 
 -   at least two categorical variables
@@ -448,6 +618,20 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: dvs-2-cat
 
+#Challenge 3- Question 2
+
+teacher_evals_compare |>
+  ggplot(mapping = aes(x = sen_level, #Don't need to specify y because we want y to be a count of the other aesthetics
+                       fill = SET_level)) +
+  geom_bar(stat = "count",
+           position = "stack") + #I added this because of the tip above, but is it bad practice to just have 'geom_bar( )' since these arguments are the default?
+  scale_fill_manual(values = c("steelblue",
+                               "orange3")) +
+  theme_bw() +
+  labs(x = "Seniority of Instructor",
+       y = NULL,
+       subtitle = "Number of Sections",
+       fill = "SET Level")
 ```
 
 -   dates (timeseries plot)
@@ -508,22 +692,25 @@ ggplot(data = surveys,
        mapping = aes(x = weight,
                      y = species,
                      color = genus)) +
-  geom_boxplot() + #Remove plotting all the points here; clutters the plot
-  scale_color_manual(values = cdPalette_grey) + 
-  annotate("text", y = 1:14, x = 325, label = c("Neotoma", #N. abigula
-                                                "Chaetodipus", #C. baileyi
-                                                "Peromyscus", #P. eremicus
-                                                "Perognathus", #P. flavus
-                                                "Reithrodontomys", #R. fulvencens
-                                                "Sigmodon", #S. hispidus
-                                                "Onychomys", #O. leucogaster
-                                                "Peromyscus", #P. maniculatus
-                                                "Reithrodontomys", #R. megalotis
-                                                "Dipodomys", #D. merriami
-                                                "Dipodomys", #D. ordii
-                                                "Chaetodipus", #C. penicillatus
-                                                "Dipodomys", #O. spectabilis
-                                                "Onychomys")) + #O. torridus
+  geom_boxplot() + 
+  scale_color_manual(values = cdPalette_grey) + #use previously made custom pallet
+  annotate("text", 
+           y = 1:14, 
+           x = 325, 
+           label = c("Neotoma", #N. abigula
+                     "Chaetodipus", #C. baileyi
+                     "Peromyscus", #P. eremicus
+                     "Perognathus", #P. flavus
+                     "Reithrodontomys", #R. fulvencens
+                     "Sigmodon", #S. hispidus
+                     "Onychomys", #O. leucogaster
+                     "Peromyscus", #P. maniculatus
+                     "Reithrodontomys", #R. megalotis
+                     "Dipodomys", #D. merriami
+                     "Dipodomys", #D. ordii
+                     "Chaetodipus", #C. penicillatus
+                     "Dipodomys", #O. spectabilis
+                     "Onychomys")) + #O. torridus
   theme_bw() + 
   scale_x_continuous(limits = c(0, 350)) + #Neotoma gets cut off so expand x-axis limit
   labs(x = "Weight (g)",
@@ -662,22 +849,25 @@ ggplot(data = surveys,
        mapping = aes(x = weight,
                      y = species,
                      color = genus)) +
-  geom_boxplot() + #Remove plotting all the points here; clutters the plot
-  scale_color_manual(values = cdPalette_grey) + 
-  annotate("text", y = 1:14, x = 325, label = c("Neotoma", #N. abigula
-                                                "Chaetodipus", #C. baileyi
-                                                "Peromyscus", #P. eremicus
-                                                "Perognathus", #P. flavus
-                                                "Reithrodontomys", #R. fulvencens
-                                                "Sigmodon", #S. hispidus
-                                                "Onychomys", #O. leucogaster
-                                                "Peromyscus", #P. maniculatus
-                                                "Reithrodontomys", #R. megalotis
-                                                "Dipodomys", #D. merriami
-                                                "Dipodomys", #D. ordii
-                                                "Chaetodipus", #C. penicillatus
-                                                "Dipodomys", #O. spectabilis
-                                                "Onychomys")) + #O. torridus
+  geom_boxplot() + 
+  scale_color_manual(values = cdPalette_grey) + #use previously made custom pallet
+  annotate("text", 
+           y = 1:14, 
+           x = 325, 
+           label = c("Neotoma", #N. abigula
+                     "Chaetodipus", #C. baileyi
+                     "Peromyscus", #P. eremicus
+                     "Perognathus", #P. flavus
+                     "Reithrodontomys", #R. fulvencens
+                     "Sigmodon", #S. hispidus
+                     "Onychomys", #O. leucogaster
+                     "Peromyscus", #P. maniculatus
+                     "Reithrodontomys", #R. megalotis
+                     "Dipodomys", #D. merriami
+                     "Dipodomys", #D. ordii
+                     "Chaetodipus", #C. penicillatus
+                     "Dipodomys", #O. spectabilis
+                     "Onychomys")) + #O. torridus
   theme_bw() + 
   scale_x_continuous(limits = c(0, 350)) + #Neotoma gets cut off so expand x-axis limit
   labs(x = "Weight (g)",
@@ -696,6 +886,18 @@ ggplot(data = surveys,
 ```{r}
 #| label: dvs-4-summarize
 
+#Lab 3- Question 9
+
+#Which teacher-class combinations answered all 9 questions?
+teacher_evals_clean |>
+  group_by(teacher_id, course_id) |>
+  summarize(no_9 = n(),
+            .groups = 'drop') |> #this is important to specify what statistic to use
+  filter(no_9 == 9) |> 
+  distinct(teacher_id,course_id) |>
+  nrow()
+
+#Note: Original code was modified to use summarize to count the number of questions per teacher and course combination.
 ```
 
 -   Example using `across()`
@@ -724,6 +926,19 @@ teacher_evals_clean |>
 ```{r}
 #| label: dvs-5-1
 
+#Lab 3- Question 10
+
+#Teachers with the highest average rating for Q1
+teacher_evals_clean |>
+  filter(question_no == 1) |> 
+  group_by(teacher_id, SET_score_avg) |>
+  summarise(SET_score_avg = mean(SET_score_avg),
+            .groups = "drop") |> #Average Q1 score for each teacher
+  filter(SET_score_avg == max(SET_score_avg) |
+         SET_score_avg == min(SET_score_avg)
+         )
+
+#Note: Original code was modified to filter using max and min arguments in one pipeline instead of slice_min and slice_max in seperate pipelines.
 ```
 
 -   Example 2
@@ -731,6 +946,18 @@ teacher_evals_clean |>
 ```{r}
 #| label: dvs-5-2
 
+#Lab 3- Question 9
+
+#Which teacher-class combinations answered all 9 questions?
+teacher_evals_clean |>
+  group_by(teacher_id, course_id) |>
+  summarize(no_9 = n(),
+            .groups = 'drop') |> #this is important to specify what statistic to use
+  filter(no_9 == 9) |> 
+  distinct(teacher_id,course_id) |>
+  nrow()
+
+#Note: Original code was modified to use summarize to count the number of questions per teacher and course combination.
 ```
 
 **DVS-6: I can create tables which make my summaries clear to the reader.**
@@ -740,6 +967,21 @@ teacher_evals_clean |>
 ```{r}
 #| label: dvs-6-1
 
+#Lab 4 - Question 4
+
+ca_childcare |>
+  group_by(region, study_year) |>
+  summarize(mhi_2018 = median(mhi_2018),
+            .groups = "drop") |> #values now are median for each year at each county 
+  filter(study_year %in% c(2008, 
+                         2018)) |>
+  pivot_wider(id_cols = "region", #region stays from original table orientation 
+              names_from = study_year, #I want 2008 and 2018 to become columns
+              values_from = mhi_2018, #I want the corresponding values to be this
+              names_prefix = "Med_household_income_") |>  
+  rename("Region" = "region") |>
+  select(c(`Region`, starts_with("Med_household_income_"))) |> 
+  arrange(desc(`Med_household_income_2018`))
 ```
 
 -   Example 2
@@ -747,11 +989,31 @@ teacher_evals_clean |>
 ```{r}
 #| label: dvs-6-2
 
+#Lab 4 - Question 5
+
+ca_childcare |>
+  filter(study_year == 2018) |> #filter first to work with less data
+  group_by(region, study_year) |>
+  summarize(mhi_2018 = median(mhi_2018), #values now are median for each year at each county
+            mc_infant = median(mc_infant),
+            .groups = 'drop') |>
+  pivot_wider(id_cols = "region", #region stays from original table orientation 
+              names_from = study_year,
+              values_from = c(mhi_2018,
+                              mc_infant)) |>
+  rename("Median_household_income_2018" = "mhi_2018_2018",
+         "Median_infant_childcare$_2018" = "mc_infant_2018",
+         "Region" = "region") |> 
+  slice_min(`Median_infant_childcare$_2018`) #Superior CA has the lowest med childcare for infants in 2018
+
+#Note: Changes to the origional code- moving the filter function to the beginning of the pipeline and renaming the columns.
 ```
 
 **DVS-7: I show creativity in my tables.**
 
 -   Example 1
+
+#Lab 4 - Question 4
 
 ```{r}
 #| label: dvs-7-1
@@ -807,6 +1069,20 @@ ca_childcare |>
 ```{r}
 #| label: pe-1-one-call
 
+#Lab 5 - Witness Interviews
+
+#Join interviews data and person data, to find witnesses based on their address
+interview |>
+  inner_join(person, #keeps only rows in 'person' that are also in 'interview'
+             by = join_by(person_id == id)) |> #join using key: person_id (interviews) and id (person)
+  mutate(is_Annabel = str_detect(string = name,
+                                 pattern = "Annabel"),
+         .after = name) |> #new column after the name column with T/F if the person's first name is Annabel
+  filter(address_street_name %in% c("Northwestern Dr",
+                                    "Franklin Ave"),
+         address_number == max(address_number) | #either highest address number *or* name is Annabel
+         is_Annabel == TRUE) |>
+  pull(transcript) #1 = Morty Schapiro, #2 = Annabel Miller
 ```
 
 -   `across()`
@@ -945,7 +1221,7 @@ ca_childcare |>
         legend.title = element_text(size = 9))
 ```
 
-## Data Simulation & Statisical Models
+## Data Simulation & Statistical Models
 
 **DSSM-1: I can simulate data from a *variety* of probability models.**
 
@@ -990,6 +1266,12 @@ t.test(formula = len ~ supp,
 ```{r}
 #| label: dsm-2-2
 
+#Challenge 3- Question 3
+
+# Chi-squared test of independence between SET level and instructor seniority
+chisq.test(teacher_evals_compare$SET_level, teacher_evals_compare$sen_level) #output: p = 0.001
+
+#Note: Original code was changed to call on SET_level and sen_level in the teacher_evals_compare dataset within the chisq.test function instead of creating a table seperately and calling on the table.
 ```
 
 ## Revising My Thinking
