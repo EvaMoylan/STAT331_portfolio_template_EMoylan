@@ -1,6 +1,7 @@
 ---
 title: "STAT 331 Portfolio"
 author: "Eva Moylan"
+date: "12/8/2024"
 format: 
   html: 
     self-contained: true
@@ -1013,26 +1014,37 @@ ca_childcare |>
 
 -   Example 1
 
-#Lab 4 - Question 4
-
 ```{r}
 #| label: dvs-7-1
 
-#Lab 4 - Question 4
+#Lab 9 - Question 2
 
-ca_childcare |>
-  group_by(region, study_year) |>
-  summarize(mhi_2018 = median(mhi_2018),
-            .groups = "drop") |> #values now are median for each year at each county 
-  filter(study_year %in% c(2008, 
-                         2018)) |>
-  pivot_wider(id_cols = "region", #region stays from original table orientation 
-              names_from = study_year, #I want 2008 and 2018 to become columns
-              values_from = mhi_2018, #I want the corresponding values to be this
-              names_prefix = "Med_household_income_") |>  
-  rename("Region" = "region") |>
-  select(c(`Region`, starts_with("Med_household_income_"))) |> 
-  arrange(desc(`Med_household_income_2018`))
+results |>
+  count(Correct_Pairs) |>
+  pivot_wider(names_from = Correct_Pairs,
+              values_from = n) |>
+  reframe(across(.cols = everything(),
+                 .f = ~ (.x / 10000))
+          ) |>
+  mutate('3' = as.integer('0'),
+         .after = '2') |> #Looks like there are no 3's, so add that to the table
+  gt() |>
+  tab_header(title = "Simulated Baby-Parent Matches",
+             subtitle = "Proportion of simulations where 0, 1, 2, 3, and 4 babies were given to their correct parents."
+  ) |>
+  tab_footnote(footnote = "Note: 10,000 pairings simulated.") |>
+  tab_style(
+    style = cell_text(align = "center",
+                      weight = "bold"), 
+    locations = cells_column_labels()
+  ) |>
+  tab_style(
+    style = cell_text(align = "center"), 
+    locations = cells_body()
+  ) |>
+  fmt_percent(columns = everything())
+
+#Changes made after submission: using fmt_percent to re-label proportions, and footnote added
 ```
 
 -   Example 2
@@ -1040,24 +1052,24 @@ ca_childcare |>
 ```{r}
 #| label: dvs-7-2
 
-#Lab 4 - Question 5
+#Lab 8 - Question 4
 
-ca_childcare |>
-  filter(study_year == 2018) |> #filter first to work with less data
-  group_by(region, study_year) |>
-  summarize(mhi_2018 = median(mhi_2018), #values now are median for each year at each county
-            mc_infant = median(mc_infant),
-            .groups = 'drop') |>
-  pivot_wider(id_cols = "region", #region stays from original table orientation 
-              names_from = study_year,
-              values_from = c(mhi_2018,
-                              mc_infant)) |>
-  rename("Median_household_income_2018" = "mhi_2018_2018",
-         "Median_infant_childcare$_2018" = "mc_infant_2018",
-         "Region" = "region") |> 
-  slice_min(`Median_infant_childcare$_2018`) #Superior CA has the lowest med childcare for infants in 2018
-
-#Note: Changes to the origional code- moving the filter function to the beginning of the pipeline and renaming the columns.
+tibble(Variable = names(fish),
+       NA_Count = map_int(.x = fish,
+                          .f = ~sum(is.na(.x))
+                          )
+       ) |>
+  mutate(Variable = str_replace(string = Variable,
+                                pattern = "^[a-z]",
+                                replace = toupper)) |>
+#str_replace( ) description used to figure out 'toupper' replaces letters with uppercase
+  pivot_wider(names_from = Variable,
+              values_from = NA_Count) |>
+  knitr::kable("html",
+               align = "c",
+               caption = "Table 1: Frequency of missing values in the Blackfoot River Trout dataset across study years 1988-2006.") |> 
+  #kable() description used to find arguments
+  kable_styling(bootstrap_options = "striped")
 ```
 
 ## Program Efficiency
@@ -1109,7 +1121,18 @@ teacher_evals_clean |>
 ```{r}
 #| label: pe-1-map-1
 
-#Will fulfill later in the quarter.
+#Lab 8- Question 1
+
+tibble(Variable = names(surveys),
+       Data_Type = map_chr(.x = surveys,
+                           .f = ~ typeof(.x)
+                           )
+       ) |>
+  pivot_wider(names_from = Variable,
+              values_from = Data_Type) |>
+  knitr::kable("html",
+               align = "c") |>
+  kable_styling(bootstrap_options = "bordered")
 ```
 
 **PE-2: I can write functions to reduce repetition in my code.**
@@ -1119,7 +1142,19 @@ teacher_evals_clean |>
 ```{r}
 #| label: pe-2-1
 
-#Will fulfill later in the quarter.
+#Lab 7- Question 4
+
+rescale_01 <- function(x) {
+  
+  stopifnot("Input must be numeric" = is.numeric(x))
+  
+  stopifnot("Input must be >= 1" = (length(x) >= 1))
+ 
+  range <- range(x, na.rm = TRUE)
+  
+  return((x - range[1]) / (range[2] - range[1]))
+
+}
 ```
 
 -   Function that operates on data frames
@@ -1127,7 +1162,27 @@ teacher_evals_clean |>
 ```{r}
 #| label: pe-2-2
 
-#Will fulfill later in the quarter.
+#Lab 7- Question 8
+
+rescale_column <- function(df, x, y) {
+ 
+  stopifnot("Input is not a data frame" = (is.data.frame(df)
+                                           )
+            )
+  
+  df <- df |>
+    mutate(across(.cols = {{x}},
+                  .fns = ~rescale_01(.x)
+                  )
+           ) |>
+    
+    mutate(across(.cols = {{y}},
+                  .fns = ~rescale_01(.x)
+                  )
+    )
+
+  return(df)
+}
 ```
 
 **PE-3:I can use iteration to reduce repetition in my code.**
@@ -1137,7 +1192,17 @@ teacher_evals_clean |>
 ```{r}
 #| label: pe-3-across
 
-#Will fulfill later in the quarter.
+#Lab 7- Question 1
+
+fish_data |>
+  reframe(
+    across(.col = everything(),
+           .fns = ~sum(is.na(.x)))
+  ) |>
+  filter(
+    if_any(.col = everything(),
+           .fns = ~.x != 0))
+
 ```
 
 -   `map()` function with **one** input (e.g., `map()`, `map_chr()`, `map_dbl()`, etc.)
@@ -1145,7 +1210,19 @@ teacher_evals_clean |>
 ```{r}
 #| label: pe-3-map-1
 
-#Will fulfill later in the quarter.
+#Lab 8- Question 1
+
+tibble(Variable = names(surveys),
+       Data_Type = map_chr(.x = surveys,
+                           .f = ~ typeof(.x)
+                           )
+       ) |>
+  pivot_wider(names_from = Variable,
+              values_from = Data_Type) |>
+  knitr::kable("html",
+               align = "c") |>
+  kable_styling(bootstrap_options = "bordered")
+  
 ```
 
 -   `map()` function with **more than one** input (e.g., `map_2()` or `pmap()`)
@@ -1153,7 +1230,15 @@ teacher_evals_clean |>
 ```{r}
 #| label: pe-3-map-2
 
-#Will fulfill later in the quarter.
+#Lab 9- Question 6
+
+all_simulations <- grid |> 
+  mutate(simulated_means = pmap(.l = list(n = n, 
+                                          df = df), 
+                                .f = simulate_means)
+         ) |> 
+  unnest(cols = simulated_means) 
+
 ```
 
 **PE-4: I can use modern tools when carrying out my analysis.**
@@ -1230,7 +1315,31 @@ ca_childcare |>
 ```{r}
 #| label: dsm-1-1
 
-#Will fulfill later in the quarter.
+#Lab 9- Question 1
+
+randomBabies <- function(n = 4){ #This sets the default number of babies(n) to 4 if not otherwise specified
+  
+  baby_data <- tibble(baby = 1:n,
+                      parent = sample(1:n,
+                                      size = n,
+                                      replace = FALSE)
+  )
+  
+  baby_pairs <- baby_data |>
+    mutate(correct_pair = if_else(parent == baby,
+                                  TRUE,
+                                  FALSE)) |>
+    summarize(correct_pair = sum(correct_pair)) |>
+    pull(correct_pair)
+  
+  return(baby_pairs) #return number of correct pairs
+                  
+}
+
+results <- map_int(.x = 1:10000,
+                   .f = ~ randomBabies(n = 4)
+                   )
+
 ```
 
 -   Example 2
@@ -1238,7 +1347,29 @@ ca_childcare |>
 ```{r}
 #| label: dsm-1-2
 
-#Will fulfill later in the quarter.
+#Lab 9- Questions 4-6
+
+#Simulation function
+simulate_means <- function(n, df){
+  map_dbl(.x = 1:n, 
+          .f = ~rchisq(n = 100, df = df) %>% mean()
+          )
+}
+
+#Create grid
+grid <- crossing(n = 10^seq(from = 1, 
+                         to = 4,
+                         by = 1), 
+                 df = 10)
+
+#Simulate means across the grid
+all_simulations <- grid |> 
+  mutate(simulated_means = pmap(.l = list(n = n, 
+                                          df = df), 
+                                .f = simulate_means)
+         ) |> 
+  unnest(cols = simulated_means)
+
 ```
 
 **DSSM-2: I can conduct common statistical analyses in R.**
@@ -1294,7 +1425,7 @@ I feel confident in my effort to extend my thinking so far in this course. I mad
 
 <!-- Include an image or a description of feedback you gave that you are proud of (either in a peer review or in Discord). -->
 
-![](images/Screenshot 2024-11-03 at 9.36.52 PM.png){width="470"}
+![](images/Screenshot%202024-11-03%20at%209.36.52%20PM.png){width="470"}
 
 <!-- Include a description of how you grew as a collaborator through the weekly pair programming activities.   -->
 
