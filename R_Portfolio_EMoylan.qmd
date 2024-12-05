@@ -330,14 +330,6 @@ get_fit_now_check_in |>
   pull(name)
 ```
 
--   `full_join()`
-
-```{r}
-#| label: wd-5-full
-
-#Will fulfill later in the quarter.
-```
-
 **WD-6: I can use filtering joins to filter rows from a dataframe.**
 
 -   `semi_join()`
@@ -345,7 +337,20 @@ get_fit_now_check_in |>
 ```{r}
 #| label: wd-6-semi
 
-#Will fulfill later in the quarter.
+#Lab 5- Investigate Bowers's Statement
+
+drivers_license |>
+  filter(gender == "female",
+         height %in% 65|67,
+         hair_color == "red",
+         car_make == "Tesla",
+         car_model == "Model S") |>
+  inner_join(person,
+            by = join_by(id == license_id), #Two columns named id now with different IDs
+            suffix = c("_license","_person")) |> #Now person ID is labeled and 'ID' is license
+  semi_join(facebook_event_checkin,
+            by = join_by(id_person == person_id)) |> #only one person left
+  pull(name)
 ```
 
 -   `anti_join()`
@@ -430,14 +435,6 @@ ca_childcare |>
 
 I've done this in the following provided assignments:
 
--   Lab 1
-
--   Lab 2 & Challenge 2
-
--   Lab 3 & Challenge 3
-
--   Lab 4
-
 -   Lab 5
 
 **R-2: I can write well documented and tidy code.**
@@ -511,7 +508,19 @@ ca_childcare |>
 ```{r}
 #| label: r-2-3
 
-#Will fulfill later in the quarter.
+#Lab 7- Question 4
+
+rescale_01 <- function(x) { #Function takes vector 'x'
+  
+  stopifnot("Input must be numeric" = is.numeric(x)) #If the input isn't numeric, stop
+  
+  stopifnot("Input must be >= 1" = (length(x) >= 1)) #If the input isn't >= 1, stop
+ 
+  range <- range(x, na.rm = TRUE) #Create an object of the max and min values of x
+  
+  return((x - range[1]) / (range[2] - range[1])) #Return x rescaled to be values within 0-1
+
+}
 ```
 
 **R-3: I can write robust programs that are resistant to changes in inputs.**
@@ -546,7 +555,19 @@ ca_childcare |>
 ```{r}
 #| label: r-3-function-stops
 
-#Will fulfill later in the quarter.
+#Lab 7- Question 4
+
+rescale_01 <- function(x) { #Function takes vector 'x'
+  
+  stopifnot("Input must be numeric" = is.numeric(x)) #If the input isn't numeric, stop
+  
+  stopifnot("Input must be >= 1" = (length(x) >= 1)) #If the input isn't >= 1, stop
+ 
+  range <- range(x, na.rm = TRUE) #Create an object of the max and min values of x
+  
+  return((x - range[1]) / (range[2] - range[1])) #Return x rescaled to be values within 0-1
+
+}
 ```
 
 ## Data Visualization & Summarization
@@ -1144,15 +1165,15 @@ tibble(Variable = names(surveys),
 
 #Lab 7- Question 4
 
-rescale_01 <- function(x) {
+rescale_01 <- function(x) { #Function takes vector 'x'
   
-  stopifnot("Input must be numeric" = is.numeric(x))
+  stopifnot("Input must be numeric" = is.numeric(x)) #If the input isn't numeric, stop
   
-  stopifnot("Input must be >= 1" = (length(x) >= 1))
+  stopifnot("Input must be >= 1" = (length(x) >= 1)) #If the input isn't >= 1, stop
  
-  range <- range(x, na.rm = TRUE)
+  range <- range(x, na.rm = TRUE) #Create an object of the max and min values of x
   
-  return((x - range[1]) / (range[2] - range[1]))
+  return((x - range[1]) / (range[2] - range[1])) #Return x rescaled to be values within 0-1
 
 }
 ```
@@ -1185,7 +1206,7 @@ rescale_column <- function(df, x, y) {
 }
 ```
 
-**PE-3:I can use iteration to reduce repetition in my code.**
+**PE-3: I can use iteration to reduce repetition in my code.**
 
 -   `across()`
 
@@ -1251,7 +1272,8 @@ all_simulations <- grid |>
 #Lab 3- Question 7
 
 teacher_evals_clean |>
-  group_by(teacher_id, course_id) |> 
+  group_by(teacher_id, 
+           course_id) |> 
   summarize(
     across(.col = question_no:sex, #summarize across these columns...
            .fns = ~sum(is.na(.x))), #for these 'x' entries, keep if NA
