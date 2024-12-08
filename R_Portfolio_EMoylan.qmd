@@ -102,6 +102,26 @@ teacher_evals_clean |>
 ```{r}
 #| label: wd-3-string
 
+#Lab 5 - Witness Interviews
+
+interview |>
+  inner_join(person, #keeps only rows in 'person' that are also in 'interview'
+             by = join_by(person_id == id)) |> #join using key: person_id (interviews) and id (person)
+  mutate(is_Annabel = str_detect(string = name,
+                                 pattern = "Annabel"),
+         .after = name) |> #new column after the name column with T/F if the person's first name is Annabel
+  filter(address_street_name %in% c("Northwestern Dr",
+                                    "Franklin Ave"),
+         address_number == max(address_number) | #either highest address number *or* name is Annabel
+         is_Annabel == TRUE) |>
+  pull(transcript) #1 = Morty Schapiro, #2 = Annabel Miller
+```
+
+-   factor
+
+```{r}
+#| label: wd-3-factor
+
 #Lab 5- Applying Witness Accounts
 
 get_fit_now_check_in |>
@@ -122,21 +142,6 @@ get_fit_now_check_in |>
          membership_id == TRUE,
          plate_number == TRUE) |>
   pull(name)
-```
-
--   factor
-
-```{r}
-#| label: wd-3-factor
-
-#Lab 3- Question 11
-
-#Teacher with the highest average percent failure
-teacher_evals_clean |>
-  filter(seniority == 1) |> #Keep only instructors with 1 year of experience, seniority = factor
-  group_by(teacher_id) |>
-  summarise(percent_failed_cur = mean(percent_failed_cur)) |>
-  slice_max(percent_failed_cur)
 ```
 
 -   date (example must use functions from **lubridate**)
@@ -414,19 +419,22 @@ ca_childcare |>
 
 #Lab 4 - Question 4
 
-ca_childcare |>
-  group_by(region, study_year) |>
-  summarize(mhi_2018 = median(mhi_2018),
-            .groups = "drop") |> #values now are median for each year at each county 
+ca_childcare |> #This is the dataframe being used
+  group_by(region, study_year) |> #Following summary will be applied to these two groups
+  summarize(mhi_2018 = median(mhi_2018), #Find the median mhi_2018 values
+            .groups = "drop") |> #Values now are median for each year at each county 
   filter(study_year %in% c(2008, 
-                         2018)) |>
+                         2018)) |> #Keep only study years that include 2008 or 2018
   pivot_wider(id_cols = "region", #region stays from original table orientation 
               names_from = study_year, #I want 2008 and 2018 to become columns
               values_from = mhi_2018, #I want the corresponding values to be this
-              names_prefix = "Med_household_income_") |>  
-  rename("Region" = "region") |>
-  select(c(`Region`, starts_with("Med_household_income_"))) |> 
-  arrange(desc(`Med_household_income_2018`))
+              names_prefix = "Med_household_income_") |>  #Add this prefix to the column names
+  rename("Region" = "region") |> #Rename the region column to be capitalized
+  select(c(`Region`, 
+           starts_with("Med_household_income_"))) |> #Select Region rows that start with this prefix
+  arrange(desc(`Med_household_income_2018`)) #Arrange this in descending order
+
+#Note: More code comments added.
 ```
 
 ## Reproducibility
@@ -436,6 +444,8 @@ ca_childcare |>
 I've done this in the following provided assignments:
 
 -   Lab 5
+-   Lab 8
+-   Lab 9
 
 **R-2: I can write well documented and tidy code.**
 
@@ -447,15 +457,15 @@ I've done this in the following provided assignments:
 #Challenge 3- Hot
 
 #Box plot to compare weight within species
-ggplot(data = surveys,
-       mapping = aes(x = weight,
-                     y = species,
-                     color = genus)) +
-  geom_boxplot() + 
+ggplot(data = surveys, #This is the dataframe that will be plotted
+       mapping = aes(x = weight, #Weight will be on x-axis
+                     y = species, #Species will be on y-axis
+                     color = genus)) + #Color will denote genus
+  geom_boxplot() + #This specifies the plot type (boxplot)
   scale_color_manual(values = cdPalette_grey) + #use previously made custom pallet
-  annotate("text", 
-           y = 1:14, 
-           x = 325, 
+  annotate("text", #annotations will be text annotations
+           y = 1:14, #Annotations will be on lines 1,2,3 etc. through 14
+           x = 325, #Annotations will be placed at this value on the x-axis
            label = c("Neotoma", #N. abigula
                      "Chaetodipus", #C. baileyi
                      "Peromyscus", #P. eremicus
@@ -470,15 +480,15 @@ ggplot(data = surveys,
                      "Chaetodipus", #C. penicillatus
                      "Dipodomys", #O. spectabilis
                      "Onychomys")) + #O. torridus
-  theme_bw() + 
+  theme_bw() + #Black and white theme
   scale_x_continuous(limits = c(0, 350)) + #Neotoma gets cut off so expand x-axis limit
-  labs(x = "Weight (g)",
-       y = NULL,
-       subtitle = "Annotations represent genera",
-       title = "Rodent Weight Across Species") +
-  theme(legend.position = "none")
+  labs(x = "Weight (g)", #x-axis label
+       y = NULL, #No label for y-axis because information is in the subtitle/title
+       subtitle = "Annotations represent genera", #This is the subtitle
+       title = "Rodent Weight Across Species") + #This is the title
+  theme(legend.position = "none") #Remove the legend 
 
-#Note: Original code was modified to use only one annotate function for every species name. The subtitle was also reworded. 
+#Note: Original code was modified to use only one annotate function for every species name. The subtitle was also reworded and more code comments added. 
 ```
 
 -   Example of **dplyr** pipeline
@@ -488,19 +498,22 @@ ggplot(data = surveys,
 
 #Lab 4 - Question 4
 
-ca_childcare |>
-  group_by(region, study_year) |>
-  summarize(mhi_2018 = median(mhi_2018),
-            .groups = "drop") |> #values now are median for each year at each county 
+ca_childcare |> #This is the dataframe being used
+  group_by(region, study_year) |> #Following summary will be applied to these two groups
+  summarize(mhi_2018 = median(mhi_2018), #Find the median mhi_2018 values
+            .groups = "drop") |> #Values now are median for each year at each county 
   filter(study_year %in% c(2008, 
-                         2018)) |>
+                         2018)) |> #Keep only study years that include 2008 or 2018
   pivot_wider(id_cols = "region", #region stays from original table orientation 
               names_from = study_year, #I want 2008 and 2018 to become columns
               values_from = mhi_2018, #I want the corresponding values to be this
-              names_prefix = "Med_household_income_") |>  
-  rename("Region" = "region") |>
-  select(c(`Region`, starts_with("Med_household_income_"))) |> 
-  arrange(desc(`Med_household_income_2018`))
+              names_prefix = "Med_household_income_") |>  #Add this prefix to the column names
+  rename("Region" = "region") |> #Rename the region column to be capitalized
+  select(c(`Region`, 
+           starts_with("Med_household_income_"))) |> #Select Region rows that start with this prefix
+  arrange(desc(`Med_household_income_2018`)) #Arrange this in descending order
+
+#Note: More code comments added.
 ```
 
 -   Example of function formatting
@@ -521,6 +534,8 @@ rescale_01 <- function(x) { #Function takes vector 'x'
   return((x - range[1]) / (range[2] - range[1])) #Return x rescaled to be values within 0-1
 
 }
+
+#Note: More code comments added.
 ```
 
 **R-3: I can write robust programs that are resistant to changes in inputs.**
@@ -547,7 +562,7 @@ ca_childcare |>
          "Region" = "region") |> 
   slice_min(`Median_infant_childcare$_2018`) #Superior CA has the lowest med childcare for infants in 2018
 
-#Note: Changes to the origional code- moving the filter function to the beginning of the pipeline and renaming the columns.
+#Note: Changes to the origional code include moving the filter function to the beginning of the pipeline and renaming the columns.
 ```
 
 -   Example of function stops
@@ -568,6 +583,8 @@ rescale_01 <- function(x) { #Function takes vector 'x'
   return((x - range[1]) / (range[2] - range[1])) #Return x rescaled to be values within 0-1
 
 }
+
+#Note: More code comments added.
 ```
 
 ## Data Visualization & Summarization
@@ -602,15 +619,15 @@ ggplot(data = surveys,
 #Challenge 3- Hot
 
 #Box plot to compare weight within species
-ggplot(data = surveys,
-       mapping = aes(x = weight,
-                     y = species,
-                     color = genus)) +
-  geom_boxplot() + 
+ggplot(data = surveys, #This is the dataframe that will be plotted
+       mapping = aes(x = weight, #Weight will be on x-axis
+                     y = species, #Species will be on y-axis
+                     color = genus)) + #Color will denote genus
+  geom_boxplot() + #This specifies the plot type (boxplot)
   scale_color_manual(values = cdPalette_grey) + #use previously made custom pallet
-  annotate("text", 
-           y = 1:14, 
-           x = 325, 
+  annotate("text", #annotations will be text annotations
+           y = 1:14, #Annotations will be on lines 1,2,3 etc. through 14
+           x = 325, #Annotations will be placed at this value on the x-axis
            label = c("Neotoma", #N. abigula
                      "Chaetodipus", #C. baileyi
                      "Peromyscus", #P. eremicus
@@ -625,15 +642,15 @@ ggplot(data = surveys,
                      "Chaetodipus", #C. penicillatus
                      "Dipodomys", #O. spectabilis
                      "Onychomys")) + #O. torridus
-  theme_bw() + 
+  theme_bw() + #Black and white theme
   scale_x_continuous(limits = c(0, 350)) + #Neotoma gets cut off so expand x-axis limit
-  labs(x = "Weight (g)",
-       y = NULL,
-       subtitle = "Annotations represent genera",
-       title = "Rodent Weight Across Species") +
-  theme(legend.position = "none")
+  labs(x = "Weight (g)", #x-axis label
+       y = NULL, #No label for y-axis because information is in the subtitle/title
+       subtitle = "Annotations represent genera", #This is the subtitle
+       title = "Rodent Weight Across Species") + #This is the title
+  theme(legend.position = "none") #Remove the legend 
 
-#Note: Original code was modified to use only one annotate function for every species name. The subtitle was also reworded. 
+#Note: Original code was modified to use only one annotate function for every species name. The subtitle was also reworded and more code comments added. 
 ```
 
 -   at least two categorical variables
@@ -711,15 +728,15 @@ ca_childcare |>
 #Challenge 3- Hot
 
 #Box plot to compare weight within species
-ggplot(data = surveys,
-       mapping = aes(x = weight,
-                     y = species,
-                     color = genus)) +
-  geom_boxplot() + 
+ggplot(data = surveys, #This is the dataframe that will be plotted
+       mapping = aes(x = weight, #Weight will be on x-axis
+                     y = species, #Species will be on y-axis
+                     color = genus)) + #Color will denote genus
+  geom_boxplot() + #This specifies the plot type (boxplot)
   scale_color_manual(values = cdPalette_grey) + #use previously made custom pallet
-  annotate("text", 
-           y = 1:14, 
-           x = 325, 
+  annotate("text", #annotations will be text annotations
+           y = 1:14, #Annotations will be on lines 1,2,3 etc. through 14
+           x = 325, #Annotations will be placed at this value on the x-axis
            label = c("Neotoma", #N. abigula
                      "Chaetodipus", #C. baileyi
                      "Peromyscus", #P. eremicus
@@ -734,15 +751,15 @@ ggplot(data = surveys,
                      "Chaetodipus", #C. penicillatus
                      "Dipodomys", #O. spectabilis
                      "Onychomys")) + #O. torridus
-  theme_bw() + 
+  theme_bw() + #Black and white theme
   scale_x_continuous(limits = c(0, 350)) + #Neotoma gets cut off so expand x-axis limit
-  labs(x = "Weight (g)",
-       y = NULL,
-       subtitle = "Annotations represent genera",
-       title = "Rodent Weight Across Species") +
-  theme(legend.position = "none")
+  labs(x = "Weight (g)", #x-axis label
+       y = NULL, #No label for y-axis because information is in the subtitle/title
+       subtitle = "Annotations represent genera", #This is the subtitle
+       title = "Rodent Weight Across Species") + #This is the title
+  theme(legend.position = "none") #Remove the legend 
 
-#Note: Original code was modified to use only one annotate function for every species name. The subtitle was also reworded. 
+#Note: Original code was modified to use only one annotate function for every species name. The subtitle was also reworded and more code comments added. 
 ```
 
 -   I can modify the text in my plot to be more readable
@@ -843,39 +860,18 @@ ca_childcare |>
 ```{r}
 #| label: dvs-3-2
 
-#Lab 5 - Witness Interviews
-
-#Join interviews data and person data, to find witnesses based on their address
-interview |>
-  inner_join(person, #keeps only rows in 'person' that are also in 'interview'
-             by = join_by(person_id == id)) |> #join using key: person_id (interviews) and id (person)
-  mutate(is_Annabel = str_detect(string = name,
-                                 pattern = "Annabel"),
-         .after = name) |> #new column after the name column with T/F if the person's first name is Annabel
-  filter(address_street_name %in% c("Northwestern Dr",
-                                    "Franklin Ave"),
-         address_number == max(address_number) | #either highest address number *or* name is Annabel
-         is_Annabel == TRUE) |>
-  pull(transcript) #1 = Morty Schapiro, #2 = Annabel Miller
-```
-
--   I can be creative...
-
-```{r}
-#| label: dvs-3-3
-
 #Challenge 3- Hot
 
 #Box plot to compare weight within species
-ggplot(data = surveys,
-       mapping = aes(x = weight,
-                     y = species,
-                     color = genus)) +
-  geom_boxplot() + 
+ggplot(data = surveys, #This is the dataframe that will be plotted
+       mapping = aes(x = weight, #Weight will be on x-axis
+                     y = species, #Species will be on y-axis
+                     color = genus)) + #Color will denote genus
+  geom_boxplot() + #This specifies the plot type (boxplot)
   scale_color_manual(values = cdPalette_grey) + #use previously made custom pallet
-  annotate("text", 
-           y = 1:14, 
-           x = 325, 
+  annotate("text", #annotations will be text annotations
+           y = 1:14, #Annotations will be on lines 1,2,3 etc. through 14
+           x = 325, #Annotations will be placed at this value on the x-axis
            label = c("Neotoma", #N. abigula
                      "Chaetodipus", #C. baileyi
                      "Peromyscus", #P. eremicus
@@ -890,15 +886,83 @@ ggplot(data = surveys,
                      "Chaetodipus", #C. penicillatus
                      "Dipodomys", #O. spectabilis
                      "Onychomys")) + #O. torridus
-  theme_bw() + 
+  theme_bw() + #Black and white theme
   scale_x_continuous(limits = c(0, 350)) + #Neotoma gets cut off so expand x-axis limit
-  labs(x = "Weight (g)",
-       y = NULL,
-       subtitle = "Annotations represent genera",
-       title = "Rodent Weight Across Species") +
-  theme(legend.position = "none")
+  labs(x = "Weight (g)", #x-axis label
+       y = NULL, #No label for y-axis because information is in the subtitle/title
+       subtitle = "Annotations represent genera", #This is the subtitle
+       title = "Rodent Weight Across Species") + #This is the title
+  theme(legend.position = "none") #Remove the legend 
 
-#Note: Original code was modified to use only one annotate function for every species name. The subtitle was also reworded. 
+#Note: Original code was modified to use only one annotate function for every species name. The subtitle was also reworded and more code comments added. 
+```
+
+-   I can be creative...
+
+```{r}
+#| label: dvs-3-3
+
+#Lab 7- Question 2
+
+fish_data |>
+  filter(is.na(weight) == TRUE) |> 
+  mutate(trip = case_when( #this mutate added to change labels
+    trip == 1 ~ "Trip 1",
+    trip == 2 ~ "Trip 2"),
+    section = fct_recode(.f = section,
+                              "Scotty Brown" = "ScottyBrown")) |>
+  ggplot(mapping = aes(x = year,
+                       fill = section)) +
+  geom_bar(stat = "count",
+           position = "stack") +
+  facet_wrap(~ trip) +
+  scale_fill_manual(values = c("tomato",
+                               "steelblue")) +
+  scale_x_continuous(n.breaks = 10) +
+  theme_bw() +
+  labs(x = "Year",
+       y = NULL,
+       title = str_c("Frequency of Missing Fish Weights (g) for the ",
+                     "<span style = 'color:#FF6347'>**Johnsrud**</span>",
+                     " and <span style = 'color:#4682B4'>**Scotty Brown**</span>",
+                     " Sections of the Blackfoot River"),
+       fill = "Study Section") +
+  theme(aspect.ratio = 0.5,
+        legend.position = "none",
+        axis.text.x = element_text(size = 7.5),
+        plot.title = ggtext::element_markdown())
+  
+#Note: Legend removed and color-coded title added.
+##################################################
+
+#Challenge 7- Question 4
+
+##| fig-cap: "Figure 1. The distribution of trout condition indeces across study years 1988 to 2006 in the Johsrud and Scotty Brown study regions. The green dotted lines represent the healthy index range of 0.8 to 1."
+
+fish_clean |>
+  mutate(condition = condition.index(weight, 
+                                     length)) |>
+  filter(condition <= 2.5) |>
+  ggplot(mapping = aes(x = year,
+                       y = condition,
+                       color = section)) +
+  geom_jitter(width = 0.2, alpha = 0.5) +
+  facet_wrap(~ section) +
+  scale_color_manual(values = c("tomato", "steelblue")) +
+  scale_x_continuous(n.breaks = 10) +
+  theme_bw() +
+  geom_hline(yintercept = c(1, 0.8), 
+             linetype = "dashed", 
+             color = "darkolivegreen") +
+  labs(x = "Study Year",
+       y = NULL,
+       subtitle = "Condition Index",
+       title = "Fish Condition Across Study Sites",
+       fill = "Study Section") +
+  theme(aspect.ratio = 0.75,
+        axis.text.x = element_text(angle = 45, 
+                                   vjust = 0.75),
+        legend.position = "none")
 ```
 
 **DVS-4: I can calculate numerical summaries of variables.**
@@ -908,18 +972,21 @@ ggplot(data = surveys,
 ```{r}
 #| label: dvs-4-summarize
 
-#Lab 3- Question 9
+#Lab 3- Question 11
 
-#Which teacher-class combinations answered all 9 questions?
+#Teacher with the highest average percent failure
 teacher_evals_clean |>
-  group_by(teacher_id, course_id) |>
-  summarize(no_9 = n(),
-            .groups = 'drop') |> #this is important to specify what statistic to use
-  filter(no_9 == 9) |> 
-  distinct(teacher_id,course_id) |>
-  nrow()
+  filter(seniority == 1) |> #Keep only instructors with 1 year of experience
+  group_by(teacher_id) |>
+  summarize(percent_failed_cur = mean(percent_failed_cur)) |>
+  slice_max(percent_failed_cur)
 
-#Note: Original code was modified to use summarize to count the number of questions per teacher and course combination.
+#Teachers with the lowest average percent failure
+teacher_evals_clean |>
+  filter(seniority == 1) |> #Keep only instructors with 1 year of experience
+  group_by(teacher_id) |>
+  summarise(percent_failed_cur = mean(percent_failed_cur)) |>
+  slice_min(percent_failed_cur)
 ```
 
 -   Example using `across()`
@@ -991,19 +1058,22 @@ teacher_evals_clean |>
 
 #Lab 4 - Question 4
 
-ca_childcare |>
-  group_by(region, study_year) |>
-  summarize(mhi_2018 = median(mhi_2018),
-            .groups = "drop") |> #values now are median for each year at each county 
+ca_childcare |> #This is the dataframe being used
+  group_by(region, study_year) |> #Following summary will be applied to these two groups
+  summarize(mhi_2018 = median(mhi_2018), #Find the median mhi_2018 values
+            .groups = "drop") |> #Values now are median for each year at each county 
   filter(study_year %in% c(2008, 
-                         2018)) |>
+                         2018)) |> #Keep only study years that include 2008 or 2018
   pivot_wider(id_cols = "region", #region stays from original table orientation 
               names_from = study_year, #I want 2008 and 2018 to become columns
               values_from = mhi_2018, #I want the corresponding values to be this
-              names_prefix = "Med_household_income_") |>  
-  rename("Region" = "region") |>
-  select(c(`Region`, starts_with("Med_household_income_"))) |> 
-  arrange(desc(`Med_household_income_2018`))
+              names_prefix = "Med_household_income_") |>  #Add this prefix to the column names
+  rename("Region" = "region") |> #Rename the region column to be capitalized
+  select(c(`Region`, 
+           starts_with("Med_household_income_"))) |> #Select Region rows that start with this prefix
+  arrange(desc(`Med_household_income_2018`)) #Arrange this in descending order
+
+#Note: More code comments added.
 ```
 
 -   Example 2
@@ -1011,24 +1081,34 @@ ca_childcare |>
 ```{r}
 #| label: dvs-6-2
 
-#Lab 4 - Question 5
+#Lab 9 - Question 2
 
-ca_childcare |>
-  filter(study_year == 2018) |> #filter first to work with less data
-  group_by(region, study_year) |>
-  summarize(mhi_2018 = median(mhi_2018), #values now are median for each year at each county
-            mc_infant = median(mc_infant),
-            .groups = 'drop') |>
-  pivot_wider(id_cols = "region", #region stays from original table orientation 
-              names_from = study_year,
-              values_from = c(mhi_2018,
-                              mc_infant)) |>
-  rename("Median_household_income_2018" = "mhi_2018_2018",
-         "Median_infant_childcare$_2018" = "mc_infant_2018",
-         "Region" = "region") |> 
-  slice_min(`Median_infant_childcare$_2018`) #Superior CA has the lowest med childcare for infants in 2018
+results |>
+  count(Correct_Pairs) |>
+  pivot_wider(names_from = Correct_Pairs,
+              values_from = n) |>
+  reframe(across(.cols = everything(),
+                 .f = ~ (.x / 10000))
+          ) |>
+  mutate('3' = as.integer('0'),
+         .after = '2') |> #Looks like there are no 3's, so add that to the table
+  gt() |>
+  tab_header(title = "Simulated Baby-Parent Matches",
+             subtitle = "Proportion of simulations where 0, 1, 2, 3, and 4 babies were given to their correct parents."
+  ) |>
+  tab_footnote(footnote = "Note: 10,000 pairings simulated.") |>
+  tab_style(
+    style = cell_text(align = "center",
+                      weight = "bold"), 
+    locations = cells_column_labels()
+  ) |>
+  tab_style(
+    style = cell_text(align = "center"), 
+    locations = cells_body()
+  ) |>
+  fmt_percent(columns = everything())
 
-#Note: Changes to the origional code- moving the filter function to the beginning of the pipeline and renaming the columns.
+#Note: Changes made include using fmt_percent to re-label proportions, and footnote added.
 ```
 
 **DVS-7: I show creativity in my tables.**
@@ -1065,7 +1145,7 @@ results |>
   ) |>
   fmt_percent(columns = everything())
 
-#Changes made after submission: using fmt_percent to re-label proportions, and footnote added
+#Note: Changes made include using fmt_percent to re-label proportions, and footnote added.
 ```
 
 -   Example 2
@@ -1176,6 +1256,8 @@ rescale_01 <- function(x) { #Function takes vector 'x'
   return((x - range[1]) / (range[2] - range[1])) #Return x rescaled to be values within 0-1
 
 }
+
+#Note: Code comments added.
 ```
 
 -   Function that operates on data frames
@@ -1216,7 +1298,7 @@ rescale_column <- function(df, x, y) {
 #Lab 7- Question 1
 
 fish_data |>
-  reframe(
+  summarize(
     across(.col = everything(),
            .fns = ~sum(is.na(.x)))
   ) |>
@@ -1433,7 +1515,7 @@ chisq.test(teacher_evals_compare$SET_level, teacher_evals_compare$sen_level) #ou
 
 <!-- For the revisions included in your Portfolio, to help me understand the nature of your revisions, please denote somehow the feedback I provided you (e.g., boldface, italics, colored text) before your revisions. -->
 
-When I was provided growing feedback on assignments, I submitted revisions for all but some of the questions. Additionally, if I recieved feedback on questions that I received a success on, I tried my best to also apply those revisions to my code and related code in future assignments. When revising my code, I wrote thoughtful reflections on why the changes were necessary and how I will use this information for future programming. A revision that I am proud of was from Lab 2, which applied to questions 2 and 3:
+When I was provided growing feedback on assignments, I submitted revisions for all but some of the questions. Additionally, if I received feedback on questions that I received a success on, I tried my best to also apply those revisions to my code and related code in future assignments. When revising my code, I wrote thoughtful reflections on why the changes were necessary and how I will use this information for future programming. A revision that I am proud of was from Lab 2, which applied to questions 2 and 3:
 
 *"Originally, I used the print( ) function to show a tibble of the data to get the information on rows, columns and data types. Reconsidering this decision, it is more efficient to use glimpse( ). While print( ) gives the size of the tibble, you need to scroll to look at every column individually to see the different data types and the result gives a message not an output. But, glimpse( ) gives the same information in the form of an output. In the future, when I need this information I will use the glimpse( ) function instead!"*
 
