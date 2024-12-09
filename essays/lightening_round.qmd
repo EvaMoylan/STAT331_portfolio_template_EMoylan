@@ -1,21 +1,26 @@
 ---
-title: "Lightening Round Essays"
+title: "Lightning Round Essays"
+name: "Eva Moylan"
 format: html
 editor: visual
 ---
 
 **Answer each of the following questions with *one sentence* including a brief explanation.**
 
-1. Finish the sentence with another student’s name: "If [Name of Student] doesn’t earn an A, then nobody should, because..." Explain your choice and your reasoning.
+1.  Finish the sentence with another student’s name: *"If Tillman Erb doesn’t earn an A, then nobody should, because he was a patient group member and I was impressed with his coding efficiency. "*
 
+2.  What was the most difficult part of the class for you? List a general topic, a specific problem, a kind of work we did, etc. and explain why.
 
-2. What was the most difficult part of the class for you? List a general topic, a specific problem, a kind of work we did, etc. and explain why.
+    *Writing functions was the hardest part of this class for me because it was easy to accidentally write a function that ran but had a mistake that wouldn't notice until I applied the function to data later on.*
 
+3.  What was the easiest part of the class for you? Explain why.
 
-3. What was the easiest part of the class for you? Explain why.
+    *Creating visualizations using ggplot2 was the easiest part of the class for me because I had the most background with this package compared to other packages we used.*
 
+4.  What part of the class surprised or interested you the most? Explain why.
 
-4. What part of the class surprised or interested you the most? Explain why.
+    *Learning how to write functions was one of the most interesting parts of this class because it helped me understand how functions within packages work and also how R packages are written.*
 
+5.  Give one piece of advice to a student just beginning a quarter of STAT 331 that will help them be successful in learning.
 
-5. Give one piece of advice to a student just beginning a quarter of STAT 331 that will help them be successful in learning.
+    *Revise your code as much as possible, even if you receive a success on a question because this is where a lot of my learning happened.*
