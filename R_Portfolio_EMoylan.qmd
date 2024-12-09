@@ -104,19 +104,29 @@ teacher_evals_clean |>
 ```{r}
 #| label: wd-3-string
 
-#Lab 5 - Witness Interviews
+#Lab 5- Applying Witness Accounts
 
-interview |>
-  inner_join(person, #keeps only rows in 'person' that are also in 'interview'
-             by = join_by(person_id == id)) |> #join using key: person_id (interviews) and id (person)
-  mutate(is_Annabel = str_detect(string = name,
-                                 pattern = "Annabel"),
-         .after = name) |> #new column after the name column with T/F if the person's first name is Annabel
-  filter(address_street_name %in% c("Northwestern Dr",
-                                    "Franklin Ave"),
-         address_number == max(address_number) | #either highest address number *or* name is Annabel
-         is_Annabel == TRUE) |>
-  pull(transcript) #1 = Morty Schapiro, #2 = Annabel Miller
+#Combine data sets to have member_id, member_status, license plate, check-in date
+get_fit_now_check_in |>
+  right_join(get_fit_now_member,
+             by = join_by(membership_id == id)) |>
+  left_join(person,
+             by = join_by(person_id == id,
+                          name == name)) |> #two keys, name and id's
+  inner_join(drivers_license,
+             by = join_by(license_id == id)) |>
+  mutate(plate_number = str_detect(string = plate_number,
+                                    pattern = "H42W")) |>
+  filter(gender == "male",
+         membership_status == "gold",
+         check_in_date == "20180109", #change this
+         plate_number == TRUE,
+         str_detect(string = membership_id,
+                    pattern = "^48Z")) |>
+  pull(name)
+
+#Note: Join functions changed from inner to right and left, ^ added to membership_id
+      #pattern detection and membership_id str_detect moved to a filter instead of a mutate.
 ```
 
 -   factor
@@ -124,26 +134,7 @@ interview |>
 ```{r}
 #| label: wd-3-factor
 
-#Lab 5- Applying Witness Accounts
 
-get_fit_now_check_in |>
-  inner_join(get_fit_now_member,
-             by = join_by(membership_id == id)) |>
-  inner_join(person,
-             by = join_by(person_id == id,
-                          name == name)) |> #two keys, name and id's
-  inner_join(drivers_license,
-             by = join_by(license_id == id)) |>
-  mutate(plate_number = str_detect(string = plate_number,
-                                    pattern = "H42W"),
-         membership_id = str_detect(string = membership_id,
-                                    pattern = "48Z")) |>
-  filter(gender == "male",
-         membership_status == "gold",
-         check_in_date == "20180109",
-         membership_id == TRUE,
-         plate_number == TRUE) |>
-  pull(name)
 ```
 
 -   date (example must use functions from **lubridate**)
@@ -296,20 +287,34 @@ crime_scene_report |>
 
 **WD-5: I can use mutating joins to combine multiple dataframes.**
 
--   `left_join()`
+-   `left_join() & right_join()`
 
 ```{r}
-#| label: wd-5-left
+#| label: wd-5-right-and-left
 
-#Will fulfill later in the quarter.
-```
+#Lab 5- Applying Witness Accounts
 
--   `right_join()`
+#Combine data sets to have member_id, member_status, license plate, check-in date
+get_fit_now_check_in |>
+  right_join(get_fit_now_member,
+             by = join_by(membership_id == id)) |>
+  left_join(person,
+             by = join_by(person_id == id,
+                          name == name)) |> #two keys, name and id's
+  inner_join(drivers_license,
+             by = join_by(license_id == id)) |>
+  mutate(plate_number = str_detect(string = plate_number,
+                                    pattern = "H42W")) |>
+  filter(gender == "male",
+         membership_status == "gold",
+         check_in_date == "20180109", #change this
+         plate_number == TRUE,
+         str_detect(string = membership_id,
+                    pattern = "^48Z")) |>
+  pull(name)
 
-```{r}
-#| label: wd-5-right
-
-#Will fulfill later in the quarter.
+#Note: Join functions changed from inner to right and left, ^ added to membership_id
+      #pattern detection and membership_id str_detect moved to a filter instead of a mutate.
 ```
 
 -   `inner_join()`
@@ -317,26 +322,19 @@ crime_scene_report |>
 ```{r}
 #| label: wd-5-inner
 
-#Lab 5- Applying Witness Accounts
+#Lab 5 - Witness Interviews
 
-get_fit_now_check_in |>
-  inner_join(get_fit_now_member,
-             by = join_by(membership_id == id)) |>
-  inner_join(person,
-             by = join_by(person_id == id,
-                          name == name)) |> #two keys, name and id's
-  inner_join(drivers_license,
-             by = join_by(license_id == id)) |>
-  mutate(plate_number = str_detect(string = plate_number,
-                                    pattern = "H42W"),
-         membership_id = str_detect(string = membership_id,
-                                    pattern = "48Z")) |>
-  filter(gender == "male",
-         membership_status == "gold",
-         check_in_date == "20180109",
-         membership_id == TRUE,
-         plate_number == TRUE) |>
-  pull(name)
+interview |>
+  inner_join(person, #keeps only rows in 'person' that are also in 'interview'
+             by = join_by(person_id == id)) |> #join using key: person_id (interviews) and id (person)
+  mutate(is_Annabel = str_detect(string = name,
+                                 pattern = "Annabel"),
+         .after = name) |> #new column after the name column with T/F if the person's first name is Annabel
+  filter(address_street_name %in% c("Northwestern Dr",
+                                    "Franklin Ave"),
+         address_number == max(address_number) | #either highest address number *or* name is Annabel
+         is_Annabel == TRUE) |>
+  pull(transcript) #1 = Morty Schapiro, #2 = Annabel Miller
 ```
 
 **WD-6: I can use filtering joins to filter rows from a dataframe.**
@@ -346,20 +344,26 @@ get_fit_now_check_in |>
 ```{r}
 #| label: wd-6-semi
 
-#Lab 5- Investigate Bowers's Statement
+##################################### Example 1 #####################################
 
-drivers_license |>
-  filter(gender == "female",
-         height %in% 65|67,
-         hair_color == "red",
-         car_make == "Tesla",
-         car_model == "Model S") |>
-  inner_join(person,
-            by = join_by(id == license_id), #Two columns named id now with different IDs
-            suffix = c("_license","_person")) |> #Now person ID is labeled and 'ID' is license
-  semi_join(facebook_event_checkin,
-            by = join_by(id_person == person_id)) |> #only one person left
-  pull(name)
+#Lab 5- Bowers's Interview
+
+interview |>
+  semi_join(suspect_1, #Keep only the row containing the suspect found in previous step
+            join_by(person_id)) |>
+  pull(transcript)
+
+#Note: Object created for suspect 1; filtering by person_id was replaced with a semi_join.
+
+##################################### Example 2 #####################################
+
+#Lab 5- Priestly's Interview
+interview |>
+  semi_join(suspect_2, #Keep only the row containing the suspect found in previous step
+            join_by(person_id)) |>
+  pull(transcript) #error: so no interview for Miranda Priestly
+
+#Note: Object created for suspect 1; filtering by person_id was replaced with a semi_join.
 ```
 
 -   `anti_join()`
@@ -367,7 +371,30 @@ drivers_license |>
 ```{r}
 #| label: wd-6-anti
 
-#Will fulfill later in the quarter.
+#Lab 5- Investigate Bowers's Statement
+
+no_concert <- facebook_event_checkin |>
+  filter(event_name != "SQL Symphony Concert") #Keep only people who did not attend the concert
+
+suspect_2 <- person |>
+  anti_join(no_concert, #remove people who didn't attend the concert
+            by = join_by(id == person_id)) |>
+  inner_join(drivers_license,
+             by = join_by(license_id == id),
+             suffix = c("_person", "_license")) |>
+  filter(gender == "female",
+         height %in% 65|67,
+         hair_color == "red",
+         car_make == "Tesla",
+         car_model == "Model S") |>
+  inner_join(income,
+            by = join_by(ssn)) |>
+  slice_max(annual_income)
+
+#Note: This code was re-written to include anti_join. A no_concert object was
+      #created with all people who didn't attend the concert. The other joining 
+      #steps were re-ordered to include the anti_join at the beginning of the 
+      #suspect_2 pipeline.
 ```
 
 **WD-7: I can pivot dataframes from long to wide and visa versa**
