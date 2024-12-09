@@ -100,9 +100,10 @@ teacher_evals_clean |>
 ```
 
 -   character -- specifically a string (example must use functions from **stringr**)
+-   factor
 
 ```{r}
-#| label: wd-3-string
+#| label: wd-3-string-and-factor
 
 #Lab 5- Applying Witness Accounts
 
@@ -119,7 +120,7 @@ get_fit_now_check_in |>
                                     pattern = "H42W")) |>
   filter(gender == "male",
          membership_status == "gold",
-         check_in_date == "20180109", #change this
+         check_in_date == "20180109",
          plate_number == TRUE,
          str_detect(string = membership_id,
                     pattern = "^48Z")) |>
@@ -127,14 +128,6 @@ get_fit_now_check_in |>
 
 #Note: Join functions changed from inner to right and left, ^ added to membership_id
       #pattern detection and membership_id str_detect moved to a filter instead of a mutate.
-```
-
--   factor
-
-```{r}
-#| label: wd-3-factor
-
-
 ```
 
 -   date (example must use functions from **lubridate**)
@@ -201,7 +194,7 @@ interview |>
 
 #Lab 4 - Question 3
 
-a_childcare <- ca_childcare |> #I want the object to be updated with regions
+ca_childcare <- ca_childcare |> #I want the object to be updated with regions
   mutate(county_name = str_remove(string = county_name, 
                                   pattern = "County"),
          region = fct_collapse(.f = county_name,
@@ -272,22 +265,41 @@ a_childcare <- ca_childcare |> #I want the object to be updated with regions
 ```{r}
 #| label: wd-4-date
 
-#Lab 5- Crime Scene Report
+#Lab 5- Investigate Bowers's Statement
 
-crime_scene_report |>
-  mutate(date = ymd(date)) |> #numeric date becomes year-month-day date format
-  filter(type == "murder",
-         date == "2018-01-15",
-         city == "SQL City") |>
-  pull(description)
+no_concert <- facebook_event_checkin |>
+  mutate(date = ymd(date), #Convert to year-month-day format
+         `date_2017` = if_else(year(date) != 2017, #If the year isn't 2017...
+                            TRUE, #Then true
+                            FALSE)) |> #If else, then false
+  filter(event_name != "SQL Symphony Concert", #Keep only people who did not attend the concert
+         `date_2017` == TRUE) #Keep only dates not in 2017
 
-#Note: Original code was modified to include mutating to date format versus filtering
-      #the date in numeric format.
+suspect_2 <- person |>
+  anti_join(no_concert, #remove people who didn't attend the concert in 2017
+            by = join_by(id == person_id)) |>
+  inner_join(drivers_license,
+             by = join_by(license_id == id),
+             suffix = c("_person", "_license")) |>
+  filter(gender == "female",
+         height %in% 65|67,
+         hair_color == "red",
+         car_make == "Tesla",
+         car_model == "Model S") |>
+  inner_join(income,
+            by = join_by(ssn)) |>
+  slice_max(annual_income)
+
+#Note: This code was re-written to include anti_join. A no_concert object was
+      #created with all people who didn't attend the concert in years besides 2017. 
+      #The other joining steps were re-ordered to include the anti_join at the 
+      #beginning of the suspect_2 pipeline.
 ```
 
 **WD-5: I can use mutating joins to combine multiple dataframes.**
 
--   `left_join() & right_join()`
+-   `left_join()`
+-   `right_join()`
 
 ```{r}
 #| label: wd-5-right-and-left
@@ -307,7 +319,7 @@ get_fit_now_check_in |>
                                     pattern = "H42W")) |>
   filter(gender == "male",
          membership_status == "gold",
-         check_in_date == "20180109", #change this
+         check_in_date == "20180109",
          plate_number == TRUE,
          str_detect(string = membership_id,
                     pattern = "^48Z")) |>
@@ -374,10 +386,15 @@ interview |>
 #Lab 5- Investigate Bowers's Statement
 
 no_concert <- facebook_event_checkin |>
-  filter(event_name != "SQL Symphony Concert") #Keep only people who did not attend the concert
+  mutate(date = ymd(date), #Convert to year-month-day format
+         `date_2017` = if_else(year(date) != 2017, #If the year isn't 2017
+                            TRUE, #Then true
+                            FALSE)) |> #If else, then false
+  filter(event_name != "SQL Symphony Concert", #Keep only people who did not attend the concert
+         `date_2017` == TRUE) #Keep only dates not in 2017
 
 suspect_2 <- person |>
-  anti_join(no_concert, #remove people who didn't attend the concert
+  anti_join(no_concert, #remove people who didn't attend the concert in 2017
             by = join_by(id == person_id)) |>
   inner_join(drivers_license,
              by = join_by(license_id == id),
@@ -392,9 +409,9 @@ suspect_2 <- person |>
   slice_max(annual_income)
 
 #Note: This code was re-written to include anti_join. A no_concert object was
-      #created with all people who didn't attend the concert. The other joining 
-      #steps were re-ordered to include the anti_join at the beginning of the 
-      #suspect_2 pipeline.
+      #created with all people who didn't attend the concert in years besides 2017. 
+      #The other joining steps were re-ordered to include the anti_join at the 
+      #beginning of the suspect_2 pipeline.
 ```
 
 **WD-7: I can pivot dataframes from long to wide and visa versa**
@@ -474,9 +491,12 @@ ca_childcare |> #This is the dataframe being used
 
 I've done this in the following provided assignments:
 
--   Lab 5
--   Lab 8
--   Lab 9
+Top selections-
+
+-   [Lab 5](https://github.com/EvaMoylan/lab-5-EvaMoylan)
+-   [Lab 9](https://github.com/EvaMoylan/lab-9-EvaMoylan)
+-   [Lab 8](https://github.com/EvaMoylan/lab-8-EvaMoylan)
+-   [Challenge 7](https://github.com/EvaMoylan/lab-7-EvaMoylan)
 
 **R-2: I can write well documented and tidy code.**
 
