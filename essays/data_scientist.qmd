@@ -1,5 +1,6 @@
 ---
 title: "My Growth as a Data Scientist"
+name: "Eva Moylan"
 format: html
 editor: visual
 ---
@@ -9,3 +10,5 @@ editor: visual
 -   Focus specifically on data science concepts and the skills we employed in learning them, not a laundry list of topics that you learned (those are in the syllabus, so I know them already).
 
 -   Focus on a small number of specific areas of growth for you that happened in STAT 331. Identify at least one artifact in your portfolio that illustrates each area of growth and explain how this artifact shows growth in the way you are describing.
+
+*Throughout this quarter I have improved the most on my coding efficiency and data manipulation and visualization abilities. This class has taught me how to strive for finding the best way to perform a task versus using a method that might produce the same result but has repetition or is not robust. Previously, I would avoid iteration because I wasn't comfortable using it, which led to unnecessary repetition in my code. But, I now feel very comfortable using functions like across( ) because I understand what every part of the function inputs mean (e.g. code comments for target DVS-4 in my final portfolio). I also have grown in my ability to manipulate a dataset into the format I need for a visualization. Particularly, in this area I've grown the most with my ability to use tools from other packages (e.g. dplyr, forcats, stringr) alongside ggplot2 to perform changes that will make a visualization more clear to a viewer (e.g. code for target DVS-3 in my final portfolio).*
