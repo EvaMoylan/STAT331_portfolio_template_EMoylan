@@ -1,5 +1,6 @@
 ---
 title: "The Power of Efficiency"
+name: "Eva Moylan"
 format: html
 editor: visual
 ---
@@ -15,3 +16,5 @@ As we’ve said in the class efficiency is a pivotal component of statistical co
 -   Why is efficiency important?
 
 -   Where did you encounter efficiency, and what were some [“a-ha” moments](https://www.merriam-webster.com/dictionary/aha%20moment) you had about efficiency? (For the latter, tie each a-ha moment to an artifact in the portfolio.)
+
+*In relation to statistical computing, efficiency refers to using a minimal amount of resources to perform a computational task. Efficiency can be applied to different aspects of statistical computing such as using iteration, not repeating functions within a pipeline or writing functions that are vectorized. Writing efficient code requires less computing power, less time and also is less error prone. Additionally, efficiency in programming increases the likelihood of outputs being reliable. Using map( ) functions to re-write code that originally used across( ) was an efficiency "a-ha" moment for me. I already considered across( ) as an efficient way to perform iteration, and I was really impressed that map( ) functions can do it even faster. I show this in my entries for PE-3 in my final portfolio.*
